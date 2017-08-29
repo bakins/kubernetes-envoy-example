@@ -1,0 +1,101 @@
+{
+    "listeners": [
+        {
+            "address": "tcp://0.0.0.0:8080",
+            "filters": [
+                {
+                    "type": "read",
+                    "name": "http_connection_manager",
+                    "config": {
+                        "server_name": "SimpleFrontend",
+                        "access_log": [
+                            {
+                                "path": "/dev/stdout"
+                            }
+                        ],
+                        "generate_request_id": true,
+                        "tracing": {
+                            "operation_name": "ingress"
+                        },
+                        "codec_type": "auto",
+                        "stat_prefix": "ingress_http",
+                        "route_config": {
+                            "virtual_hosts": [
+                                {
+                                    "name": "backend",
+                                    "domains": [
+                                        "*"
+                                    ],
+                                    "routes": [
+                                        {
+                                            "prefix": "/",
+                                            "cluster": "frontend"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "filters": [
+                            {
+                                "type": "decoder",
+                                "name": "router",
+                                "config": {}
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "tracing": {
+        "http": {
+            "driver": {
+                "type": "zipkin",
+                "config": {
+                    "collector_cluster": "zipkin",
+                    "collector_endpoint": "/api/v1/spans"
+                }
+            }
+        }
+    },
+    "admin": {
+        "access_log_path": "/dev/null",
+        "address": "tcp://0.0.0.0:8001"
+    },
+    "cluster_manager": {
+        "clusters": [
+            {
+                "name": "frontend",
+                "connect_timeout_ms": 250,
+                "type": "strict_dns",
+                "lb_type": "round_robin",
+                "hosts": [
+                    {
+                        "url": "tcp://frontend:8080"
+                    }
+                ],
+                "health_check": {
+                    "type": "http",
+                    "timeout_ms": 100,
+                    "interval_ms": 5000,
+                    "unhealthy_threshold": 3,
+                    "healthy_threshold": 2,
+                    "path": "/healthz",
+                    "interval_jitter_ms": 250,
+                    "service_name": "frontend"
+                }
+            },
+            {
+                "name": "zipkin",
+                "connect_timeout_ms": 250,
+                "type": "strict_dns",
+                "lb_type": "round_robin",
+                "hosts": [
+                    {
+                        "url": "tcp://zipkin:9411"
+                    }
+                ]
+            }
+        ]
+    }
+}

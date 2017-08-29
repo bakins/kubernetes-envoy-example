@@ -1,0 +1,67 @@
+syntax = "proto3";
+package user;
+import "google/api/annotations.proto";
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+
+message User {
+    string id = 1;
+    string name = 2;
+    string address = 3;
+    string email = 4;
+}
+
+message CreateUserRequest {
+    string name = 1;
+    string address = 2;
+    string email = 3;
+}
+
+message GetUserRequest {
+    string id = 1;
+}
+
+message ListUsersRequest {
+}
+
+message ListUsersResponse {
+    repeated User users = 1;
+}
+
+message DeleteUserRequest {
+    string id = 1;
+}
+
+service UserService {
+    rpc CreateUser(CreateUserRequest) returns (User) {
+        option (google.api.http) = {
+            post: "/v1/users"
+            body: "*"
+        };
+    }
+
+    rpc GetUser(GetUserRequest) returns (User) {
+        option (google.api.http) = {
+            get: "/v1/users/{id}"
+        };
+    }
+
+    rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+        option (google.api.http) = {
+            get: "/v1/users"
+        };
+    }
+
+    rpc DeleteUser(DeleteUserRequest) returns (User) {
+        option (google.api.http) = {
+            delete: "/v1/users/{id}"
+        };
+    }
+
+    rpc UpdateUser(User) returns (User) {
+        option (google.api.http) = {
+            put: "/v1/users"
+            body: "*"
+        };
+    }
+}
+
