@@ -7,6 +7,7 @@
                     "type": "read",
                     "name": "http_connection_manager",
                     "config": {
+                        "server_name": "envoy-frontend",
                         "tracing": {
                             "operation_name": "ingress"
                         },
@@ -21,12 +22,12 @@
                                     ],
                                     "routes": [
                                         {
-                                            "prefix": "/",
-                                            "cluster": "frontend"
-                                        },
-                                        {
                                             "prefix": "/user",
                                             "cluster": "user"
+                                        },
+                                        {
+                                            "prefix": "/",
+                                            "cluster": "local_service"
                                         }
                                     ]
                                 }
@@ -71,7 +72,7 @@
     "cluster_manager": {
         "clusters": [
             {
-                "name": "frontend",
+                "name": "local_service",
                 "connect_timeout_ms": 250,
                 "type": "static",
                 "lb_type": "round_robin",

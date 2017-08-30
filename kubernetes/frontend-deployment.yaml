@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: frontend
+      annotations:
+        prometheus.io/scrape: "true"
       name: frontend
     spec:
       containers:
@@ -19,7 +21,8 @@ spec:
           imagePullPolicy: IfNotPresent
           command: 
             - "/usr/bin/frontend"
-            - "--address=127.0.0.1:9090"
+            - "--address=:9090"
+            - "--endpoint=127.0.0.1:8080"
         - name: envoy
           image: lyft/envoy:a733fc5932b34c984712c3090ba74fe54b480324
           command: 
@@ -31,6 +34,7 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+              name: metrics
           volumeMounts:
             - name: envoy
               mountPath: /etc/envoy
@@ -44,6 +48,7 @@ spec:
           ports:
             - containerPort: 9102
               protocol: TCP
+              name: metrics
           volumeMounts:
             - name: statsd
               mountPath: /etc/statsd
@@ -53,4 +58,4 @@ spec:
             name: frontend
         - name: statsd
           configMap:
-            name: frontend-statsd
+            name: envoy-statsd

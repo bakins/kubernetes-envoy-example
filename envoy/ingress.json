@@ -7,10 +7,13 @@
                     "type": "read",
                     "name": "http_connection_manager",
                     "config": {
-                        "server_name": "SimpleFrontend",
+                        "server_name": "envoy-ingress",
                         "access_log": [
                             {
-                                "path": "/dev/stdout"
+                                "path": "/dev/stdout",
+                                "filter": {
+                                    "type": "not_healthcheck"
+                                }
                             }
                         ],
                         "generate_request_id": true,
@@ -97,5 +100,7 @@
                 ]
             }
         ]
-    }
+    },
+    "statsd_udp_ip_address": "127.0.0.1:9125",
+    "stats_flush_interval_ms": 1000
 }

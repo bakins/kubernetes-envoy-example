@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: ingress
+      annotations:
+        prometheus.io/scrape: "true"
       name: ingress
     spec:
       containers:
@@ -28,7 +30,24 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /etc/envoy
+        - name: statsd
+          image: prom/statsd-exporter:master
+          command: 
+            - "/bin/statsd_exporter"
+          args:
+            - "-statsd.add-suffix=false"
+            - "-statsd.mapping-config=/etc/statsd/statsd.yaml"
+          ports:
+            - containerPort: 9102
+              protocol: TCP
+              name: metrics
+          volumeMounts:
+            - name: statsd
+              mountPath: /etc/statsd
       volumes:
         - name: config
           configMap:
             name: ingress
+        - name: statsd
+          configMap:
+            name: envoy-statsd

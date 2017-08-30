@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/beorn7/perks"
+  packages = ["quantile"]
+  revision = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
+
+[[projects]]
   name = "github.com/gogo/protobuf"
   packages = ["proto","protoc-gen-gogo/descriptor"]
   revision = "100ba4e885062801d56799d78530b73b178a78f3"
@@ -14,16 +20,40 @@
   revision = "ab9f9a6dab164b7d1246e0e688b0ab7b94d8553e"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = [".","logging","logging/zap","recovery","tags","tracing/opentracing","util/metautils","validator"]
+  revision = "645b33ed7ba8739747bf2df55d0349d4bba2e7f6"
+
+[[projects]]
+  name = "github.com/grpc-ecosystem/go-grpc-prometheus"
+  packages = ["."]
+  revision = "6b7015e65d366bf3f19b2b2a000a831940f0f7e0"
+  version = "v1.1"
+
+[[projects]]
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = ["runtime","runtime/internal","utilities"]
   revision = "589b126116b5fc961939b3e156c29e4d9d58222f"
   version = "v1.2.2"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/hkwi/h2c"
+  packages = ["."]
+  revision = "76facb310bcf2b6ab2fd1abc04990a2ba67515e6"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  name = "github.com/matttproud/golang_protobuf_extensions"
+  packages = ["pbutil"]
+  revision = "3247c84500bff8d9fb6d579d800f20b3e091582c"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -48,6 +78,36 @@
   packages = ["."]
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
+
+[[projects]]
+  name = "github.com/prometheus/client_golang"
+  packages = ["prometheus","prometheus/promhttp"]
+  revision = "c5b7fccd204277076155f10851dad72b76a49317"
+  version = "v0.8.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/prometheus/client_model"
+  packages = ["go"]
+  revision = "6f3806018612930941127f2a7c6c453ba2c527d2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/prometheus/common"
+  packages = ["expfmt","internal/bitbucket.org/ww/goautoneg","model"]
+  revision = "61f87aac8082fa8c3c5655c7608d7478d46ac2ad"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/prometheus/procfs"
+  packages = [".","xfs"]
+  revision = "e645f4e5aaa8506fc71d6edbc5c4ff02c04c46f2"
+
+[[projects]]
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  revision = "879c5887cd475cd7864858769793b2ceb0d44feb"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -87,6 +147,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/sync"
+  packages = ["errgroup"]
+  revision = "f52d1811a62927559de87708c8913c1650ce4f26"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
   revision = "de984aaade05b6b868d6ad3a063e045ed3609f20"
@@ -106,6 +172,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "707954cd69e7aaf593795ebe8b49105a3e12ad8cf76fca1c999862a0fd1d95bc"
+  inputs-digest = "88b68acfadd5e55fa2a69b90085dcde909c8663ed75d1b2d5947e59af4ea0dc2"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -3,7 +3,7 @@ set -ex
 
 eval $(minikube docker-env --shell bash)
 
-for CMD in frontend; do
+for CMD in frontend user; do
     docker run -t \
         -v `pwd`:/go/src/github.com/bakins/kubernetes-envoy-example \
         -w /go/src/github.com/bakins/kubernetes-envoy-example\

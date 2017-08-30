@@ -1,0 +1,64 @@
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: user
+  name: user
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: user
+      annotations:
+        prometheus.io/scrape: "true"
+      name: user
+    spec:
+      containers:
+        - name: user
+          image: quay.io/bakins/kubernetes-envoy-example:latest
+          imagePullPolicy: IfNotPresent
+          command: 
+            - "/usr/bin/user"
+            - "--address=:9090"
+          ports:
+            - containerPort: 9090
+              protocol: TCP
+              name: metrics
+        - name: envoy
+          image: lyft/envoy:a733fc5932b34c984712c3090ba74fe54b480324
+          command: 
+            - "/usr/local/bin/envoy"
+          args:
+            - "--config-path /etc/envoy/envoy.json"
+            - "--mode serve"
+            - "--service-cluster user"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+              name: app
+          volumeMounts:
+            - name: envoy
+              mountPath: /etc/envoy
+        - name: statsd
+          image: prom/statsd-exporter:master
+          command: 
+            - "/bin/statsd_exporter"
+          args:
+            - "-statsd.add-suffix=false"
+            - "-statsd.mapping-config=/etc/statsd/statsd.yaml"
+          ports:
+            - containerPort: 9102
+              protocol: TCP
+              name: metrics
+          volumeMounts:
+            - name: statsd
+              mountPath: /etc/statsd
+      volumes:
+        - name: envoy
+          configMap:
+            name: user
+        - name: statsd
+          configMap:
+            name: envoy-statsd
