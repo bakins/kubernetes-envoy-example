@@ -52,3 +52,9 @@
 [[constraint]]
   name = "google.golang.org/grpc"
   version = "1.5.2"
+
+[[constraint]]
+   name = "github.com/openzipkin/zipkin-go-opentracing"
+   revision = "37e942825de0f846d15acc3bc9d027c9134a9b25"
+
+  

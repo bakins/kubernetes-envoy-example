@@ -13,12 +13,11 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+	//grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/hkwi/h2c"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
@@ -75,10 +74,13 @@ func (s *Server) Run() error {
 	grpc_zap.ReplaceGrpcLogger(logger)
 	grpc_prometheus.EnableHandlingTimeHistogram()
 
+	//tracer := util.NewTracer("user")
+
 	s.grpc = grpc.NewServer(
 		grpc.UnaryInterceptor(
 			grpc_middleware.ChainUnaryServer(
-				grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(opentracing.NoopTracer{})),
+				util.UnaryServerInterceptor(),
+				util.UnaryServerSleeperInterceptor(time.Second*3),
 				grpc_validator.UnaryServerInterceptor(),
 				grpc_prometheus.UnaryServerInterceptor,
 				grpc_zap.UnaryServerInterceptor(logger),

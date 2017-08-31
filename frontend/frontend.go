@@ -7,14 +7,13 @@ import (
 	"net/http"
 	"time"
 
-	// import for pprof
-	_ "net/http/pprof"
-
+	"github.com/bakins/kubernetes-envoy-example/api/order"
 	"github.com/bakins/kubernetes-envoy-example/api/user"
-	"github.com/opentracing-contrib/go-stdlib/nethttp"
-	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/bakins/kubernetes-envoy-example/util"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	basictracer "github.com/opentracing/basictracer-go"
 	"github.com/pkg/errors"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
 
@@ -23,20 +22,22 @@ type OptionsFunc func(*Server) error
 
 // Server is a wrapper for a simple front end HTTP server
 type Server struct {
-	address    string
-	endpoint   string
-	auxAddress string
-	server     *http.Server
-	auxServer  *http.Server
-	user       user.UserServiceClient
+	address  string
+	endpoint string
+	server   *http.Server
+	user     user.UserServiceClient
+	order    order.OrderServiceClient
 }
+
+type noopRecorder struct{}
+
+func (n noopRecorder) RecordSpan(basictracer.RawSpan) {}
 
 // New creates a new server
 func New(options ...OptionsFunc) (*Server, error) {
 	s := &Server{
-		address:    ":8080",
-		endpoint:   "127.0.0.1:9090",
-		auxAddress: ":9999",
+		address:  ":8080",
+		endpoint: "127.0.0.1:9090",
 	}
 
 	for _, f := range options {
@@ -45,26 +46,27 @@ func New(options ...OptionsFunc) (*Server, error) {
 		}
 	}
 
-	/*
-		mw := grpc_middleware.ChainUnaryClient(
-			grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(opentracing.NoopTracer{})),
-			grpc_prometheus.UnaryClientInterceptor,
-		)
-	*/
 	ctx := context.Background()
 	conn, err := grpc.DialContext(
 		ctx,
 		s.endpoint,
 		grpc.WithInsecure(),
-		//grpc.WithUnaryInterceptor(mw),
+		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
+			grpc_prometheus.UnaryClientInterceptor,
+		)),
+		grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
+			grpc_prometheus.StreamClientInterceptor,
+		)),
 	)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create grpc client")
 	}
 
+	// use the same connection for each. Envoy will handle
+	// load balancing, etc
 	s.user = user.NewUserServiceClient(conn)
-
+	s.order = order.NewOrderServiceClient(conn)
 	return s, nil
 }
 
@@ -88,49 +90,29 @@ func SetEndpoint(address string) OptionsFunc {
 func (s *Server) Run() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", healthz)
-	mux.Handle("/", nethttp.Middleware(opentracing.NoopTracer{}, http.HandlerFunc(s.index)))
+	//mux.Handle("/index", nethttp.Middleware(s.tracer, http.HandlerFunc(s.index)))
+	mux.Handle("/index", util.CopyZipkinHeaders(http.HandlerFunc(s.index)))
 
 	s.server = &http.Server{
 		Addr:    s.address,
 		Handler: mux,
 	}
 
-	s.auxServer = &http.Server{
-		Addr:    s.auxAddress,
-		Handler: http.DefaultServeMux,
+	if err := s.server.ListenAndServe(); err != nil {
+		if err != http.ErrServerClosed {
+			return errors.Wrap(err, "failed to run main http server")
+		}
 	}
 
-	var g errgroup.Group
-
-	g.Go(func() error {
-		if err := s.server.ListenAndServe(); err != nil {
-			if err != http.ErrServerClosed {
-				return errors.Wrap(err, "failed to run main http server")
-			}
-		}
-		return nil
-	})
-
-	g.Go(func() error {
-		if err := s.auxServer.ListenAndServe(); err != nil {
-			if err != http.ErrServerClosed {
-				return errors.Wrap(err, "failed to run aux http server")
-			}
-		}
-		return nil
-	})
-
-	return g.Wait()
+	return nil
 }
 
 // Stop will stop the server
 func (s *Server) Stop() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	s.server.Shutdown(ctx)
 
-	for _, srv := range []*http.Server{s.auxServer, s.server} {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-		defer cancel()
-		srv.Shutdown(ctx)
-	}
 }
 
 func healthz(wr http.ResponseWriter, r *http.Request) {
@@ -138,13 +120,22 @@ func healthz(wr http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) index(wr http.ResponseWriter, r *http.Request) {
+	users, err := s.user.ListUsers(r.Context(), &user.ListUsersRequest{})
 
-	time.Sleep(time.Duration(rand.Intn(1000)) * time.Microsecond)
-
-	users, err := s.user.ListUsers(context.Background(), &user.ListUsersRequest{})
 	if err != nil {
 		http.Error(wr, err.Error(), 500)
 		return
 	}
+
+	time.Sleep(time.Duration(rand.Intn(3000)) * time.Microsecond)
+
+	orders, err := s.order.ListOrders(r.Context(), &order.ListOrdersRequest{})
+
+	if err != nil {
+		http.Error(wr, err.Error(), 500)
+		return
+	}
+
 	fmt.Fprintln(wr, users)
+	fmt.Fprintln(wr, orders)
 }

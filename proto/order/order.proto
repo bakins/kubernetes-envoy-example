@@ -1,0 +1,67 @@
+syntax = "proto3";
+package order;
+import "google/api/annotations.proto";
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+
+message Order {
+    string id = 1;
+    string user = 2;
+    repeated string items = 3;
+}
+
+message CreateOrderRequest {
+    string user = 1;
+    repeated string items = 2;
+}
+
+message GetOrderRequest {
+    string id = 1;
+}
+
+message ListOrdersRequest {
+    // user is optional
+    string user = 1;
+}
+
+message ListOrdersResponse {
+    repeated Order orders = 1;
+}
+
+message DeleteOrderRequest {
+    string id = 1;
+}
+
+service OrderService {
+    rpc CreateOrder(CreateOrderRequest) returns (Order) {
+        option (google.api.http) = {
+            post: "/v1/orders"
+            body: "*"
+        };
+    }
+
+    rpc GetOrder(GetOrderRequest) returns (Order) {
+        option (google.api.http) = {
+            get: "/v1/orders/{id}"
+        };
+    }
+
+    rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse) {
+        option (google.api.http) = {
+            get: "/v1/orders"
+        };
+    }
+
+    rpc DeleteOrder(DeleteOrderRequest) returns (Order) {
+        option (google.api.http) = {
+            delete: "/v1/orders/{id}"
+        };
+    }
+
+    rpc UpdateOrder(Order) returns (Order) {
+        option (google.api.http) = {
+            put: "/v1/orders"
+            body: "*"
+        };
+    }
+}
+

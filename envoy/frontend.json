@@ -12,19 +12,15 @@
                             "operation_name": "ingress"
                         },
                         "codec_type": "auto",
-                        "stat_prefix": "frontend_http",
+                        "stat_prefix": "ingress_http",
                         "route_config": {
                             "virtual_hosts": [
                                 {
-                                    "name": "backend",
+                                    "name": "frontend",
                                     "domains": [
                                         "*"
                                     ],
                                     "routes": [
-                                        {
-                                            "prefix": "/user",
-                                            "cluster": "user"
-                                        },
                                         {
                                             "prefix": "/",
                                             "cluster": "local_service"
@@ -43,6 +39,50 @@
                                     "cache_time_ms": 1000
                                 }
                             },
+                            {
+                                "type": "decoder",
+                                "name": "router",
+                                "config": {}
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "address": "tcp://0.0.0.0:7070",
+            "filters": [
+                {
+                    "type": "read",
+                    "name": "http_connection_manager",
+                    "config": {
+                        "server_name": "envoy-frontend",
+                        "tracing": {
+                            "operation_name": "egress"
+                        },
+                        "codec_type": "auto",
+                        "stat_prefix": "egress_http",
+                        "route_config": {
+                            "virtual_hosts": [
+                                {
+                                    "name": "user",
+                                    "domains": [
+                                        "*"
+                                    ],
+                                    "routes": [
+                                        {
+                                            "prefix": "/user",
+                                            "cluster": "user"
+                                        },
+                                        {
+                                            "prefix": "/order",
+                                            "cluster": "order"
+                                        }                            
+                                    ]
+                                }
+                            ]
+                        },
+                        "filters": [
                             {
                                 "type": "decoder",
                                 "name": "router",
@@ -91,6 +131,18 @@
                 "hosts": [
                     {
                         "url": "tcp://user:8080"
+                    }
+                ]
+            },
+            {
+                "name": "order",
+                "connect_timeout_ms": 250,
+                "type": "strict_dns",
+                "lb_type": "round_robin",
+                "features": "http2",
+                "hosts": [
+                    {
+                        "url": "tcp://order:8080"
                     }
                 ]
             },

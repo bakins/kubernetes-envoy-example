@@ -22,7 +22,7 @@ spec:
           command: 
             - "/usr/bin/frontend"
             - "--address=:9090"
-            - "--endpoint=127.0.0.1:8080"
+            - "--endpoint=127.0.0.1:7070"
         - name: envoy
           image: lyft/envoy:a733fc5932b34c984712c3090ba74fe54b480324
           command: 

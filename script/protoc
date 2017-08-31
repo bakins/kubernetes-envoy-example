@@ -5,7 +5,7 @@ DIR="$( dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) )"
 
 cd ${DIR}
 
-for C in user; do
+for C in user order; do
     mkdir -p ./api/$C
     protoc  \
         --proto_path=${GOPATH}/src \

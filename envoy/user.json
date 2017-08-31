@@ -12,11 +12,11 @@
                             "operation_name": "ingress"
                         },
                         "codec_type": "auto",
-                        "stat_prefix": "frontend_http",
+                        "stat_prefix": "ingress_http",
                         "route_config": {
                             "virtual_hosts": [
                                 {
-                                    "name": "backend",
+                                    "name": "user",
                                     "domains": [
                                         "*"
                                     ],
