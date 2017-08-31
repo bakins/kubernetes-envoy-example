@@ -1,6 +1,7 @@
 syntax = "proto3";
 package order;
 import "google/api/annotations.proto";
+import "item/item.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 
 message Order {
@@ -16,6 +17,16 @@ message CreateOrderRequest {
 
 message GetOrderRequest {
     string id = 1;
+}
+
+message GetOrderDetailRequest {
+    string id = 1;
+}
+
+message GetOrderDetailResponse {
+    string id = 1;
+    string user = 2;
+    repeated item.Item items = 3;
 }
 
 message ListOrdersRequest {
@@ -45,6 +56,12 @@ service OrderService {
         };
     }
 
+     rpc GetOrderDetail(GetOrderDetailRequest) returns (GetOrderDetailResponse) {
+        option (google.api.http) = {
+            get: "/v1/orders-details/{id}"
+        };
+    }
+
     rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse) {
         option (google.api.http) = {
             get: "/v1/orders"
@@ -64,4 +81,3 @@ service OrderService {
         };
     }
 }
-

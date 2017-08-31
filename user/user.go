@@ -47,6 +47,7 @@ func New(options ...OptionsFunc) (*Server, error) {
 	}
 
 	s.store = newUserStore(s)
+	s.store.LoadSampleData()
 
 	return s, nil
 }

@@ -22,6 +22,7 @@ spec:
           command: 
             - "/usr/bin/order"
             - "--address=:9090"
+            - "--endpoint=127.0.0.1:7070"
           ports:
             - containerPort: 9090
               protocol: TCP

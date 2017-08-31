@@ -2,8 +2,8 @@ package frontend
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -122,31 +122,60 @@ func healthz(wr http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(wr, "OK\n")
 }
 
+type orderReport struct {
+	User   *user.User                      `json:"user"`
+	Orders []*order.GetOrderDetailResponse `json:"orders"`
+}
+
 func (s *Server) index(wr http.ResponseWriter, r *http.Request) {
-	users, err := s.user.ListUsers(r.Context(), &user.ListUsersRequest{})
+
+	// TODO: we should use a deadline context
+	ctx := r.Context()
+
+	report := []*orderReport{}
+
+	users, err := s.user.ListUsers(ctx, &user.ListUsersRequest{})
 
 	if err != nil {
 		http.Error(wr, err.Error(), 500)
 		return
 	}
 
-	time.Sleep(time.Duration(rand.Intn(3000)) * time.Microsecond)
+	// get orders for each user
+	for _, u := range users.Users {
+		orders, err := s.order.ListOrders(ctx, &order.ListOrdersRequest{User: u.Id})
 
-	orders, err := s.order.ListOrders(r.Context(), &order.ListOrdersRequest{})
+		rep := &orderReport{
+			User:   u,
+			Orders: []*order.GetOrderDetailResponse{},
+		}
 
+		if err != nil {
+			fmt.Println("failed to list orders for", u.Id, err)
+			http.Error(wr, err.Error(), 500)
+			return
+		}
+
+		// get details
+		for _, i := range orders.Orders {
+			details, err := s.order.GetOrderDetail(ctx, &order.GetOrderDetailRequest{Id: i.Id})
+			if err != nil {
+				fmt.Println("failed to get order details for", u.Id, err)
+				http.Error(wr, err.Error(), 500)
+				return
+			}
+			fmt.Println(details)
+			rep.Orders = append(rep.Orders, details)
+		}
+		report = append(report, rep)
+	}
+
+	data, err := json.MarshalIndent(report, "", "    ")
 	if err != nil {
+		fmt.Println("failed to mrshal json", err)
 		http.Error(wr, err.Error(), 500)
 		return
 	}
 
-	i, err := s.item.GetItem(r.Context(), &item.GetItemRequest{Id: "foo"})
-	if err != nil {
-		fmt.Printf("%#v\n", err)
-		http.Error(wr, err.Error(), 500)
-		return
-	}
-
-	fmt.Fprintln(wr, users)
-	fmt.Fprintln(wr, orders)
-	fmt.Fprintln(wr, i)
+	wr.Write(data)
 }

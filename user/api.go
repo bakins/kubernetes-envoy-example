@@ -60,7 +60,6 @@ func (u *userStore) ListUsers(ctx context.Context, req *user.ListUsersRequest) (
 	res := &user.ListUsersResponse{
 		Users: make([]*user.User, 0, len(u.items)),
 	}
-
 	for _, v := range u.items {
 		res.Users = append(res.Users, v)
 	}
@@ -95,4 +94,14 @@ func (u *userStore) UpdateUser(ctx context.Context, req *user.User) (*user.User,
 	u.items[req.Id] = req
 
 	return req, nil
+}
+
+func (u *userStore) LoadSampleData() {
+	u.Lock()
+	defer u.Unlock()
+
+	for _, o := range util.SampleUsers {
+		o := o
+		u.items[o.Id] = &o
+	}
 }

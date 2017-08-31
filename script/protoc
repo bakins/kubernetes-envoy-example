@@ -12,8 +12,8 @@ for C in user order item; do
         --proto_path=${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
         --proto_path=./vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
         --proto_path=./proto \
-        --go_out=plugins=grpc:./api \
-        --govalidators_out=./api\
+        --go_out=plugins=grpc,Mitem/item.proto=github.com/bakins/kubernetes-envoy-example/api/item:./api \
+        --govalidators_out=,Mitem/item.proto=github.com/bakins/kubernetes-envoy-example/api/item:./api\
         ./proto/$C/*.proto
 
     protoc \

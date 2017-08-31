@@ -60,3 +60,27 @@ func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 		return resp, err
 	}
 }
+
+// UnaryClientInterceptor returns a new unary client interceptor for
+// copying metadata
+func UnaryClientInterceptor() func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		incoming, ok := metadata.FromIncomingContext(ctx)
+
+		if ok {
+			outgoing, ok := metadata.FromOutgoingContext(ctx)
+			if !ok {
+				outgoing = metadata.MD{}
+			}
+			for _, key := range zipkinHeaders {
+				v, ok := incoming[key]
+				if ok {
+					outgoing[key] = v
+				}
+			}
+			ctx = metadata.NewOutgoingContext(ctx, outgoing)
+		}
+
+		return invoker(ctx, method, req, reply, cc, opts...)
+	}
+}

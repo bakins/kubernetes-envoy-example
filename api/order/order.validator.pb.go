@@ -12,6 +12,8 @@ It has these top-level messages:
 	Order
 	CreateOrderRequest
 	GetOrderRequest
+	GetOrderDetailRequest
+	GetOrderDetailResponse
 	ListOrdersRequest
 	ListOrdersResponse
 	DeleteOrderRequest
@@ -23,6 +25,7 @@ import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
+import _ "github.com/bakins/kubernetes-envoy-example/api/item"
 import _ "github.com/mwitkow/go-proto-validators"
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -37,6 +40,19 @@ func (this *CreateOrderRequest) Validate() error {
 	return nil
 }
 func (this *GetOrderRequest) Validate() error {
+	return nil
+}
+func (this *GetOrderDetailRequest) Validate() error {
+	return nil
+}
+func (this *GetOrderDetailResponse) Validate() error {
+	for _, item := range this.Items {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Items", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ListOrdersRequest) Validate() error {

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bakins/kubernetes-envoy-example/api/item"
 	"github.com/bakins/kubernetes-envoy-example/api/order"
 	"github.com/bakins/kubernetes-envoy-example/util"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -27,16 +28,19 @@ type OptionsFunc func(*Server) error
 
 // Server is a wrapper for a simple front end HTTP server
 type Server struct {
-	address string
-	server  *http.Server
-	grpc    *grpc.Server
-	store   *orderStore
+	address  string
+	endpoint string
+	server   *http.Server
+	grpc     *grpc.Server
+	store    *orderStore
+	item     item.ItemServiceClient
 }
 
 // New creates a new server
 func New(options ...OptionsFunc) (*Server, error) {
 	s := &Server{
-		address: ":8080",
+		address:  ":8080",
+		endpoint: "127.0.0.1:9090",
 	}
 
 	for _, f := range options {
@@ -45,7 +49,27 @@ func New(options ...OptionsFunc) (*Server, error) {
 		}
 	}
 
-	s.store = newOrderStore(s)
+	ctx := context.Background()
+	conn, err := grpc.DialContext(
+		ctx,
+		s.endpoint,
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
+			util.UnaryClientInterceptor(),
+			grpc_prometheus.UnaryClientInterceptor,
+		)),
+		grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
+			grpc_prometheus.StreamClientInterceptor,
+		)),
+	)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "could not create grpc client")
+	}
+	s.item = item.NewItemServiceClient(conn)
+	s.store = newOrderStore(s, s.item)
+	// TODO: option to load this or not
+	s.store.LoadSampleData()
 
 	return s, nil
 }
@@ -54,6 +78,14 @@ func New(options ...OptionsFunc) (*Server, error) {
 func SetAddress(address string) OptionsFunc {
 	return func(s *Server) error {
 		s.address = address
+		return nil
+	}
+}
+
+// SetEndpoint sets the address for contacting other services.
+func SetEndpoint(address string) OptionsFunc {
+	return func(s *Server) error {
+		s.endpoint = address
 		return nil
 	}
 }

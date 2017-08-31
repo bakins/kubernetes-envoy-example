@@ -2,8 +2,10 @@ package order
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
+	"github.com/bakins/kubernetes-envoy-example/api/item"
 	"github.com/bakins/kubernetes-envoy-example/api/order"
 	"github.com/bakins/kubernetes-envoy-example/util"
 	"github.com/satori/go.uuid"
@@ -12,18 +14,18 @@ import (
 // simple memory based storage
 type orderStore struct {
 	sync.RWMutex
-	server *Server
-	items  map[string]*order.Order
+	server     *Server
+	items      map[string]*order.Order
+	itemClient item.ItemServiceClient
 }
 
-func newOrderStore(s *Server) *orderStore {
+func newOrderStore(s *Server, client item.ItemServiceClient) *orderStore {
 	return &orderStore{
-		server: s,
-		items:  make(map[string]*order.Order),
+		server:     s,
+		items:      make(map[string]*order.Order),
+		itemClient: client,
 	}
 }
-
-// TODO: populate stub data
 
 func (u *orderStore) CreateOrder(ctx context.Context, req *order.CreateOrderRequest) (*order.Order, error) {
 	u.Lock()
@@ -42,15 +44,42 @@ func (u *orderStore) CreateOrder(ctx context.Context, req *order.CreateOrderRequ
 }
 
 func (u *orderStore) GetOrder(ctx context.Context, req *order.GetOrderRequest) (*order.Order, error) {
+	return u.getOrder(req.Id)
+}
+
+func (u *orderStore) getOrder(id string) (*order.Order, error) {
 	u.RLock()
 	defer u.RUnlock()
-
-	item, ok := u.items[req.Id]
+	item, ok := u.items[id]
 	if !ok {
-		return nil, util.NewNotFoundError("order", req.Id)
+		return nil, util.NewNotFoundError("order", id)
+	}
+	return item, nil
+}
+
+func (u *orderStore) GetOrderDetail(ctx context.Context, req *order.GetOrderDetailRequest) (*order.GetOrderDetailResponse, error) {
+	fmt.Println("GetOrderDetail", req.Id)
+	o, err := u.getOrder(req.Id)
+	if err != nil {
+		return nil, err
 	}
 
-	return item, nil
+	res := &order.GetOrderDetailResponse{
+		Id:   o.Id,
+		User: o.User,
+	}
+
+	for _, id := range o.Items {
+		fmt.Println("GetOrderDetail item", id)
+		i, err := u.itemClient.GetItem(ctx, &item.GetItemRequest{Id: id})
+		if err != nil {
+			fmt.Println("error getting item", id, err)
+			continue
+		}
+		fmt.Println("GetOrderDetail print item", i)
+		res.Items = append(res.Items, i)
+	}
+	return res, nil
 }
 
 func (u *orderStore) ListOrders(ctx context.Context, req *order.ListOrdersRequest) (*order.ListOrdersResponse, error) {
@@ -98,4 +127,14 @@ func (u *orderStore) UpdateOrder(ctx context.Context, req *order.Order) (*order.
 	u.items[req.Id] = req
 
 	return req, nil
+}
+
+func (u *orderStore) LoadSampleData() {
+	u.Lock()
+	defer u.Unlock()
+
+	for _, o := range util.SampleOrders {
+		o := o
+		u.items[o.Id] = &o
+	}
 }

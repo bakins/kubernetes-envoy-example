@@ -11,6 +11,7 @@ import (
 )
 
 var address = ":8080"
+var endpoint = "127.0.0.1:9090"
 
 var rootCmd = &cobra.Command{
 	Use:   "order",
@@ -21,6 +22,7 @@ var rootCmd = &cobra.Command{
 func main() {
 	f := rootCmd.Flags()
 	f.StringVarP(&address, "address", "a", address, "listening address")
+	f.StringVarP(&endpoint, "endpoint", "e", endpoint, "endpoint for contacting other services")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -30,7 +32,10 @@ func main() {
 
 func runServer(cmd *cobra.Command, args []string) {
 
-	s, err := order.New(order.SetAddress(address))
+	s, err := order.New(
+		order.SetAddress(address),
+		order.SetEndpoint(endpoint),
+	)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
