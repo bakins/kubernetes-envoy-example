@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="Version.csproj.include" />
+  <Import Project="Common.csproj.include" />
+
+  <PropertyGroup>
+    <Copyright>Copyright 2015, Google Inc.</Copyright>
+    <AssemblyTitle>gRPC C# Core</AssemblyTitle>
+    <VersionPrefix>$(GrpcCsharpVersion)</VersionPrefix>
+    <Authors>Google Inc.</Authors>
+    <TargetFrameworks>net45;netstandard1.5</TargetFrameworks>
+    <AssemblyName>Grpc.Core</AssemblyName>
+    <PackageId>Grpc.Core</PackageId>
+    <PackageTags>gRPC RPC Protocol HTTP/2</PackageTags>
+    <PackageProjectUrl>https://github.com/grpc/grpc</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/grpc/grpc/blob/master/LICENSE</PackageLicenseUrl>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.5' ">1.6.0</NetStandardImplicitPackageVersion>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSource>true</IncludeSource>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\etc\roots.pem" />
+    <Content Include="..\nativelibs\csharp_ext_macos_x64\libgrpc_csharp_ext.dylib">
+      <PackagePath>runtimes/osx/native/libgrpc_csharp_ext.x64.dylib</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="..\nativelibs\csharp_ext_macos_x86\libgrpc_csharp_ext.dylib">
+      <PackagePath>runtimes/osx/native/libgrpc_csharp_ext.x86.dylib</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="..\nativelibs\csharp_ext_linux_x64\libgrpc_csharp_ext.so">
+      <PackagePath>runtimes/linux/native/libgrpc_csharp_ext.x64.so</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="..\nativelibs\csharp_ext_linux_x86\libgrpc_csharp_ext.so">
+      <PackagePath>runtimes/linux/native/libgrpc_csharp_ext.x86.so</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="..\nativelibs\csharp_ext_windows_x64\grpc_csharp_ext.dll">
+      <PackagePath>runtimes/win/native/grpc_csharp_ext.x64.dll</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="..\nativelibs\csharp_ext_windows_x86\grpc_csharp_ext.dll">
+      <PackagePath>runtimes/win/native/grpc_csharp_ext.x86.dll</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="Grpc.Core.targets">
+      <PackagePath>build/net45/</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Interactive.Async" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+    <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
+    <PackageReference Include="System.Threading.Thread" Version="4.0.0" />
+    <PackageReference Include="System.Threading.ThreadPool" Version="4.0.0" />
+  </ItemGroup>
+
+  <Import Project="NativeDeps.csproj.include" />
+
+</Project>

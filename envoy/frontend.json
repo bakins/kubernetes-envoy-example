@@ -75,6 +75,10 @@
                                             "cluster": "user"
                                         },
                                         {
+                                            "prefix": "/item",
+                                            "cluster": "item"
+                                        },
+                                        {
                                             "prefix": "/order",
                                             "cluster": "order"
                                         }                            
@@ -131,6 +135,18 @@
                 "hosts": [
                     {
                         "url": "tcp://user:8080"
+                    }
+                ]
+            },
+            {
+                "name": "item",
+                "connect_timeout_ms": 250,
+                "type": "strict_dns",
+                "lb_type": "round_robin",
+                "features": "http2",
+                "hosts": [
+                    {
+                        "url": "tcp://item:8080"
                     }
                 ]
             },

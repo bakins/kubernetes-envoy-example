@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bakins/kubernetes-envoy-example/api/item"
 	"github.com/bakins/kubernetes-envoy-example/api/order"
 	"github.com/bakins/kubernetes-envoy-example/api/user"
 	"github.com/bakins/kubernetes-envoy-example/util"
@@ -27,6 +28,7 @@ type Server struct {
 	server   *http.Server
 	user     user.UserServiceClient
 	order    order.OrderServiceClient
+	item     item.ItemServiceClient
 }
 
 type noopRecorder struct{}
@@ -67,6 +69,7 @@ func New(options ...OptionsFunc) (*Server, error) {
 	// load balancing, etc
 	s.user = user.NewUserServiceClient(conn)
 	s.order = order.NewOrderServiceClient(conn)
+	s.item = item.NewItemServiceClient(conn)
 	return s, nil
 }
 
@@ -136,6 +139,14 @@ func (s *Server) index(wr http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	i, err := s.item.GetItem(r.Context(), &item.GetItemRequest{Id: "foo"})
+	if err != nil {
+		fmt.Printf("%#v\n", err)
+		http.Error(wr, err.Error(), 500)
+		return
+	}
+
 	fmt.Fprintln(wr, users)
 	fmt.Fprintln(wr, orders)
+	fmt.Fprintln(wr, i)
 }

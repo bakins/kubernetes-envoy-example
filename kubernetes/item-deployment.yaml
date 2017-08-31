@@ -1,0 +1,84 @@
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: item
+  name: item
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: item
+      annotations:
+        prometheus.io/scrape: "true"
+      name: item
+    spec:
+      containers:
+        - name: proxy
+          image: quay.io/bakins/kubernetes-envoy-example-php:latest
+          imagePullPolicy: IfNotPresent
+          command: 
+            - /usr/bin/grpc-fastcgi-proxy
+            - "--address=:9090"
+            - "--fastcgi=127.0.0.1:9000"
+            - "/app/index.php"
+          ports:
+            - containerPort: 9090
+              protocol: TCP
+              name: metrics
+        - name: php
+          image: quay.io/bakins/kubernetes-envoy-example-php:latest
+          imagePullPolicy: IfNotPresent
+          command: 
+            - /usr/sbin/php-fpm7
+            - "--fpm-config=/config/php-fpm.conf"
+            - "--nodaemonize"
+            - "--force-stderr"
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+              name: fastcgi
+          volumeMounts:
+            - name: php
+              mountPath: /config
+        - name: envoy
+          image: lyft/envoy:a733fc5932b34c984712c3090ba74fe54b480324
+          command: 
+            - "/usr/local/bin/envoy"
+          args:
+            - "--config-path /etc/envoy/envoy.json"
+            - "--mode serve"
+            - "--service-cluster item"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+              name: app
+          volumeMounts:
+            - name: envoy
+              mountPath: /etc/envoy
+        - name: statsd
+          image: prom/statsd-exporter:master
+          command: 
+            - "/bin/statsd_exporter"
+          args:
+            - "-statsd.add-suffix=false"
+            - "-statsd.mapping-config=/etc/statsd/statsd.yaml"
+          ports:
+            - containerPort: 9102
+              protocol: TCP
+              name: metrics
+          volumeMounts:
+            - name: statsd
+              mountPath: /etc/statsd
+      volumes:
+        - name: envoy
+          configMap:
+            name: item
+        - name: php
+          configMap:
+            name: php
+        - name: statsd
+          configMap:
+            name: envoy-statsd

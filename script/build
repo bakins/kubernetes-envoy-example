@@ -3,7 +3,13 @@ set -ex
 
 eval $(minikube docker-env --shell bash)
 
-for CMD in frontend user order; do
+pushd ./item
+#docker build -t quay.io/bakins/kubernetes-envoy-example-php:latest .
+popd
+
+#exit
+
+for CMD in frontend; do
     docker run -t \
         -v `pwd`:/go/src/github.com/bakins/kubernetes-envoy-example \
         -w /go/src/github.com/bakins/kubernetes-envoy-example\

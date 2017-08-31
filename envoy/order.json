@@ -48,6 +48,46 @@
                     }
                 }
             ]
+        },
+        {
+            "address": "tcp://0.0.0.0:7070",
+            "filters": [
+                {
+                    "type": "read",
+                    "name": "http_connection_manager",
+                    "config": {
+                        "server_name": "envoy-order",
+                        "tracing": {
+                            "operation_name": "egress"
+                        },
+                        "codec_type": "auto",
+                        "stat_prefix": "egress_http",
+                        "route_config": {
+                            "virtual_hosts": [
+                                {
+                                    "name": "item",
+                                    "domains": [
+                                        "*"
+                                    ],
+                                    "routes": [
+                                        {
+                                            "prefix": "/item",
+                                            "cluster": "item"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "filters": [
+                            {
+                                "type": "decoder",
+                                "name": "router",
+                                "config": {}
+                            }
+                        ]
+                    }
+                }
+            ]
         }
     ],
     "tracing": {
@@ -76,6 +116,18 @@
                 "hosts": [
                     {
                         "url": "tcp://127.0.0.1:9090"
+                    }
+                ]
+            },
+            {
+                "name": "item",
+                "connect_timeout_ms": 250,
+                "type": "strict_dns",
+                "lb_type": "round_robin",
+                "features": "http2",
+                "hosts": [
+                    {
+                        "url": "tcp://item:8080"
                     }
                 ]
             },
