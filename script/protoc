@@ -14,13 +14,14 @@ for C in user order item; do
         --proto_path=./proto \
         --go_out=plugins=grpc,Mitem/item.proto=github.com/bakins/kubernetes-envoy-example/api/item:./api \
         --govalidators_out=,Mitem/item.proto=github.com/bakins/kubernetes-envoy-example/api/item:./api\
+        --grpc-gateway_out=logtostderr=true:./api \
         ./proto/$C/*.proto
 
-    protoc \
-        --proto_path=${GOPATH}/src \
-        --proto_path=${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-        --proto_path=./vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-        --proto_path=./proto \
-        --grpc-gateway_out=logtostderr=true:./api \
-         ./proto/$C/*.proto
+    #protoc \
+    #    --proto_path=${GOPATH}/src \
+    #    --proto_path=${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+    #    --proto_path=./vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+    #    --proto_path=./proto \
+    #    --grpc-gateway_out=logtostderr=true:./api \
+    #     ./proto/$C/*.proto
 done

@@ -25,10 +25,6 @@ spec:
           value: "true"
         - name: GF_AUTH_ANONYMOUS_ORG_ROLE
           value: Admin
-        - name: GF_DASHBOARDS_JSON_ENABLED
-          value: "true"
-        - name: GF_DASHBOARDS_JSON_PATH
-          value: /dashboards
         - name: GF_LOG_MODE
           value: console
         image: grafana/grafana:4.4.3
@@ -36,11 +32,15 @@ spec:
         ports:
         - containerPort: 3000
           protocol: TCP
-#        volumeMounts:
-#        - mountPath: /dashboards
-#          name: grafana
-#      volumes:
-#      - configMap:
-#          defaultMode: 420
-#          name: grafana
-#        name: grafana
+      - name: dashboard-updater
+        image: quay.io/bakins/kubernetes-envoy-example:latest
+        command:
+        - kubernetes-grafana-updater
+        - dashboards
+      - name: datasource-updater
+        image: quay.io/bakins/kubernetes-envoy-example:latest
+        command:
+        - kubernetes-grafana-updater
+        - datasources
+      
+

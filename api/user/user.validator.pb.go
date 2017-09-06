@@ -18,9 +18,10 @@ It has these top-level messages:
 */
 package user
 
+import regexp "regexp"
+import fmt "fmt"
 import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
 import math "math"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
 import _ "github.com/mwitkow/go-proto-validators"
@@ -33,10 +34,22 @@ var _ = math.Inf
 func (this *User) Validate() error {
 	return nil
 }
+
+var _regex_CreateUserRequest_Name = regexp.MustCompile("^[A-Za-z0-9]+")
+
 func (this *CreateUserRequest) Validate() error {
+	if !_regex_CreateUserRequest_Name.MatchString(this.Name) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must be a string conforming to regex "^[A-Za-z0-9]+"`, this.Name))
+	}
 	return nil
 }
+
+var _regex_GetUserRequest_Id = regexp.MustCompile("^[A-Za-z0-9]+")
+
 func (this *GetUserRequest) Validate() error {
+	if !_regex_GetUserRequest_Id.MatchString(this.Id) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must be a string conforming to regex "^[A-Za-z0-9]+"`, this.Id))
+	}
 	return nil
 }
 func (this *ListUsersRequest) Validate() error {
@@ -52,6 +65,12 @@ func (this *ListUsersResponse) Validate() error {
 	}
 	return nil
 }
+
+var _regex_DeleteUserRequest_Id = regexp.MustCompile("^[A-Za-z0-9]+")
+
 func (this *DeleteUserRequest) Validate() error {
+	if !_regex_DeleteUserRequest_Id.MatchString(this.Id) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must be a string conforming to regex "^[A-Za-z0-9]+"`, this.Id))
+	}
 	return nil
 }

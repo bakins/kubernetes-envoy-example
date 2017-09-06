@@ -11,16 +11,16 @@ message Order {
 }
 
 message CreateOrderRequest {
-    string user = 1;
+    string user = 1 [(validator.field) = {regex: "^[A-Za-z0-9]+"}];
     repeated string items = 2;
 }
 
 message GetOrderRequest {
-    string id = 1;
+    string id = 1 [(validator.field) = {regex: "^[A-Za-z0-9]+"}];
 }
 
 message GetOrderDetailRequest {
-    string id = 1;
+    string id = 1 [(validator.field) = {regex: "^[A-Za-z0-9]+"}];
 }
 
 message GetOrderDetailResponse {
@@ -39,7 +39,7 @@ message ListOrdersResponse {
 }
 
 message DeleteOrderRequest {
-    string id = 1;
+    string id = 1 [(validator.field) = {regex: "^[A-Za-z0-9]+"}];
 }
 
 service OrderService {

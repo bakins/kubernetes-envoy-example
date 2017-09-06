@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# we use dry-run and pipe to kubectl apply bcs you can't update a configmap
+# from a file like you can create one.
+
 for F in ./deploy/envoy/*.json; do
     BASE=`basename ${F}`
     kubectl create configmap --dry-run "${BASE%.*}" --from-file=envoy.json=${F} -o yaml |
@@ -10,5 +14,12 @@ kubectl create configmap --dry-run envoy-statsd --from-file=statsd.yaml=./deploy
 
 kubectl create configmap --dry-run prometheus --from-file=prometheus.yaml=./deploy/prometheus.yaml -o yaml |
         kubectl apply --namespace=default --context=minikube -f -
+
+for F in ./deploy/dashboards/*.json; do
+    BASE=`basename ${F}`
+    kubectl create configmap --dry-run "${BASE%.*}" --from-file=${BASE}=${F} -o json |
+        jq '. * {"labels": {"type": "grafana-dashboard"}}' |
+        kubectl apply --namespace=default --context=minikube -f -
+done
 
 kubectl apply -R -f ./deploy/kubernetes
