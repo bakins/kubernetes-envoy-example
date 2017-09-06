@@ -76,3 +76,45 @@ mappings:
     name: envoy_external_upstream_rq_time
     cluster: "$1"
 ### END Dynamic HTTP statistics
+### BEGIN listener
+- match: envoy.listener.*.downstream_cx_length_ms
+  labels: 
+    name: envoy_listener_downstream_cx_length_ms
+    listener: $1
+- match: envoy.listener.*.downstream_cx_active
+  labels: 
+    name: envoy_listener_downstream_cx_active
+    listener: $1
+- match: envoy.listener.*.downstream_cx_proxy_proto_error
+  labels: 
+    name: envoy_listener_downstream_cx_proxy_proto_error
+    listener: $1
+- match: envoy.listener.*.downstream_cx_destroy
+  labels: 
+    name: envoy_listener_downstream_cx_destroy
+    listener: $1
+- match: envoy.listener.*.downstream_cx_total
+  labels: 
+    name: envoy_listener_downstream_cx_total
+    listener: $1
+- match: envoy.listener.*.*.*.*.downstream_cx_length_ms
+  labels: 
+    name: envoy_listener_downstream_cx_length_ms
+    listener: "$1.$2.$3.$4"
+- match: envoy.listener.*.*.*.*.downstream_cx_active
+  labels: 
+    name: envoy_listener_downstream_cx_active
+    listener: "$1.$2.$3.$4"
+- match: envoy.listener.*.*.*.*.downstream_cx_proxy_proto_error
+  labels: 
+    name: envoy_listener_downstream_cx_proxy_proto_error
+    listener: "$1.$2.$3.$4"
+- match: envoy.listener.*.*.*.*.downstream_cx_destroy
+  labels: 
+    name: envoy_listener_downstream_cx_destroy
+    listener: "$1.$2.$3.$4"
+- match: envoy.listener.*.*.*.*.downstream_cx_total
+  labels: 
+    name: envoy_listener_downstream_cx_total
+    listener: "$1.$2.$3.$4"
+### END listener

@@ -10,10 +10,10 @@ for F in ./deploy/envoy/*.json; do
 done
 
 kubectl create configmap --dry-run envoy-statsd --from-file=statsd.yaml=./deploy/statsd.yaml -o yaml |
-        kubectl apply --namespace=default --context=minikube -f -
+    kubectl apply --namespace=default --context=minikube -f -
 
 kubectl create configmap --dry-run prometheus --from-file=prometheus.yaml=./deploy/prometheus.yaml -o yaml |
-        kubectl apply --namespace=default --context=minikube -f -
+    kubectl apply --namespace=default --context=minikube -f -
 
 #for F in ./deploy/dashboards/*.json; do
 #    BASE=`basename ${F}`
@@ -21,5 +21,10 @@ kubectl create configmap --dry-run prometheus --from-file=prometheus.yaml=./depl
 #        jq '. * {"labels": {"type": "grafana-dashboard"}}' |
 #        kubectl apply --namespace=default --context=minikube -f -
 #done
+
+for APP in ingress frontend order user item; do
+    kubectl create secret generic --dry-run ${APP} --from-file=cert.pem=./certs/${APP}.pem --from-file=key.pem=./certs/${APP}-key.pem --from-file=ca.pem=./certs/ca.pem -o yaml |
+        kubectl apply --namespace=default --context=minikube -f -
+done
 
 kubectl apply -R -f ./deploy/kubernetes

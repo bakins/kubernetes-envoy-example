@@ -1,7 +1,14 @@
 {
     "listeners": [
         {
+            "name": "ingress",
             "address": "tcp://0.0.0.0:8080",
+            "ssl_context": {
+                "cert_chain_file": "/certs/cert.pem",
+                "private_key_file": "/certs/key.pem",
+                "ca_cert_file": "/certs/ca.pem",
+                "require_client_certificate": true
+            },
             "filters": [
                 {
                     "type": "read",
@@ -23,6 +30,56 @@
                                     "routes": [
                                         {
                                             "prefix": "/",
+                                            "cluster": "local_service"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "filters": [
+                            {
+                                "type": "both",
+                                "name": "health_check",
+                                "config": {
+                                    "pass_through_mode": true,
+                                    "endpoint": "/healthz",
+                                    "cache_time_ms": 1000
+                                }
+                            },
+                            {
+                                "type": "decoder",
+                                "name": "router",
+                                "config": {}
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "aux",
+            "address": "tcp://0.0.0.0:6060",
+            "filters": [
+                {
+                    "type": "read",
+                    "name": "http_connection_manager",
+                    "config": {
+                        "codec_type": "auto",
+                        "stat_prefix": "aux_http",
+                        "route_config": {
+                            "virtual_hosts": [
+                                {
+                                    "name": "backend",
+                                    "domains": [
+                                        "*"
+                                    ],
+                                    "routes": [
+                                        {
+                                            "prefix": "/healthz",
+                                            "cluster": "local_service"
+                                        },
+                                        {
+                                            "prefix": "/metrics",
                                             "cluster": "local_service"
                                         }
                                     ]

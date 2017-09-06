@@ -129,7 +129,12 @@
                     {
                         "url": "tcp://item:8080"
                     }
-                ]
+                ],
+                "ssl_context": {
+                    "cert_chain_file": "/certs/cert.pem",
+                    "private_key_file": "/certs/key.pem",
+                    "ca_cert_file": "/certs/ca.pem"
+                }
             },
             {
                 "name": "zipkin",
