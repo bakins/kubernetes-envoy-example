@@ -136,7 +136,17 @@
                     {
                         "url": "tcp://user:8080"
                     }
-                ]
+                ],
+                "health_check": {
+                    "type": "http",
+                    "timeout_ms": 100,
+                    "interval_ms": 5000,
+                    "unhealthy_threshold": 3,
+                    "healthy_threshold": 2,
+                    "path": "/healthz",
+                    "interval_jitter_ms": 250,
+                    "service_name": "user"
+                }
             },
             {
                 "name": "item",
@@ -148,7 +158,17 @@
                     {
                         "url": "tcp://item:8080"
                     }
-                ]
+                ],
+                "health_check": {
+                    "type": "http",
+                    "timeout_ms": 100,
+                    "interval_ms": 5000,
+                    "unhealthy_threshold": 3,
+                    "healthy_threshold": 2,
+                    "path": "/healthz",
+                    "interval_jitter_ms": 250,
+                    "service_name": "user"
+                }
             },
             {
                 "name": "order",
@@ -160,7 +180,17 @@
                     {
                         "url": "tcp://order:8080"
                     }
-                ]
+                ],
+                "health_check": {
+                    "type": "http",
+                    "timeout_ms": 100,
+                    "interval_ms": 5000,
+                    "unhealthy_threshold": 3,
+                    "healthy_threshold": 2,
+                    "path": "/healthz",
+                    "interval_jitter_ms": 250,
+                    "service_name": "order"
+                }
             },
             {
                 "name": "zipkin",
