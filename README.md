@@ -20,14 +20,16 @@ to the _item_ service for details about each ordered item.
 * _item_ - [gRPC](https://grpc.io/) service written in PHP (more on this below).
 Inventory of items.
 
-The basic flow of data through the service is:
+The basic flow of data through the service is
+
 ![Logical Architecture](./logical.png)
 
 Services do not communicate directly with one another. All communication is via
 Envoy.  An Envoy instance - named _ingress_ - acts as the entrypoint into the cluster.
 This is similar to the "[Service to service plus front proxy](https://lyft.github.io/envoy/docs/intro/deployment_types/front_proxy.html)" example.
 
-So the network flow of data is:
+The network flow of data is
+
 ![Service Communication](./communication.png)
 
 ## Services Detail
