@@ -21,7 +21,7 @@ spec:
           imagePullPolicy: IfNotPresent
           command: 
             - "/usr/bin/user"
-            - "--address=:9090"
+            - "--address=127.0.0.1:9090"
           ports:
             - containerPort: 9090
               protocol: TCP

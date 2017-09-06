@@ -28,19 +28,24 @@ spec:
         - name: GF_LOG_MODE
           value: console
         image: grafana/grafana:4.4.3
+        imagePullPolicy: IfNotPresent
         name: grafana
         ports:
         - containerPort: 3000
           protocol: TCP
       - name: dashboard-updater
         image: quay.io/bakins/kubernetes-envoy-example:latest
+        imagePullPolicy: IfNotPresent
         command:
         - kubernetes-grafana-updater
+        args:
         - dashboards
       - name: datasource-updater
         image: quay.io/bakins/kubernetes-envoy-example:latest
+        imagePullPolicy: IfNotPresent
         command:
         - kubernetes-grafana-updater
+        args:
         - datasources
       
 
