@@ -24,6 +24,14 @@ spec:
             - "--address=127.0.0.1:9090"
             - "--fastcgi=127.0.0.1:9000"
             - "/app/index.php"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
         - name: php
           image: quay.io/bakins/kubernetes-envoy-example-php:latest
           imagePullPolicy: IfNotPresent
@@ -50,6 +58,14 @@ spec:
           volumeMounts:
             - name: envoy
               mountPath: /etc/envoy
+          livenessProbe:
+            httpGet:
+              path: /server_info
+              port: 8001
+          readinessProbe:
+            httpGet:
+              path: /server_info
+              port: 8001
         - name: statsd
           image: prom/statsd-exporter:master
           command: 

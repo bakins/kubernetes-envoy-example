@@ -30,6 +30,14 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /etc/envoy
+          livenessProbe:
+            httpGet:
+              path: /server_info
+              port: 8001
+          readinessProbe:
+            httpGet:
+              path: /server_info
+              port: 8001
         - name: statsd
           image: prom/statsd-exporter:master
           command: 
