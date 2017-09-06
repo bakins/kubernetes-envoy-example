@@ -68,6 +68,13 @@ to send tracing information to Zipkin.
 The applications do not send any data to Zipkin. They only ensure the tracing headers
 are [propogated](https://lyft.github.io/envoy/docs/install/sandboxes/zipkin_tracing.html).
 
+## Service Discovery
+
+Envoy handles all service discovery - the applications just contact Envoy on lcoal host.
+[Kubernetes headless services](https://kubernetes.io/docs/concepts/services-networking/service/#headless-services) are used. This means a DNS request for the service will return a record for each running Pod.
+This is a simple service discovery mechanism that does not require additional helper services.
+
+
 ## Usage
 
 This example is designed to be ran on [minikube](https://github.com/kubernetes/minikube). 

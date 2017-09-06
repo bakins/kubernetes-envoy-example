@@ -50,7 +50,7 @@
             ]
         },
         {
-            "address": "tcp://0.0.0.0:7070",
+            "address": "tcp://127.0.0.1:7070",
             "filters": [
                 {
                     "type": "read",
