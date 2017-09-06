@@ -8,6 +8,12 @@
   revision = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/felixge/httpsnoop"
+  packages = ["."]
+  revision = "eadd4fad6aac69ae62379194fe0219f3dbc80fd3"
+
+[[projects]]
   name = "github.com/gogo/protobuf"
   packages = ["proto","protoc-gen-gogo/descriptor"]
   revision = "100ba4e885062801d56799d78530b73b178a78f3"
@@ -60,18 +66,6 @@
   name = "github.com/mwitkow/go-proto-validators"
   packages = ["."]
   revision = "a55ca57f374a8846924b030f534d8b8211508cf0"
-
-[[projects]]
-  name = "github.com/opentracing/basictracer-go"
-  packages = [".","wire"]
-  revision = "1b32af207119a14b1b231d451df3ed04a72efebf"
-  version = "v1.0.0"
-
-[[projects]]
-  name = "github.com/opentracing/opentracing-go"
-  packages = [".","ext","log"]
-  revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
-  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -147,12 +141,6 @@
 
 [[projects]]
   branch = "master"
-  name = "golang.org/x/sync"
-  packages = ["errgroup"]
-  revision = "f52d1811a62927559de87708c8913c1650ce4f26"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
   revision = "de984aaade05b6b868d6ad3a063e045ed3609f20"
@@ -172,6 +160,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c3376c9cac6857fcfc0c12b94fdd657e84ea8e27728acd33ccf9bb6255fd6cd2"
+  inputs-digest = "e3e972b80193b0ab0eed94e8d08969e3d0d342e4de4c1e297e3216b9edbdc54b"
   solver-name = "gps-cdcl"
   solver-version = 1

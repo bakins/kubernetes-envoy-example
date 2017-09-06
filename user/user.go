@@ -23,6 +23,10 @@ import (
 	"google.golang.org/grpc"
 )
 
+func init() {
+	grpc_prometheus.EnableHandlingTimeHistogram()
+}
+
 // OptionsFunc sets options when creating a new server.
 type OptionsFunc func(*Server) error
 

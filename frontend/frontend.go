@@ -7,16 +7,22 @@ import (
 	"net/http"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/bakins/kubernetes-envoy-example/api/item"
 	"github.com/bakins/kubernetes-envoy-example/api/order"
 	"github.com/bakins/kubernetes-envoy-example/api/user"
 	"github.com/bakins/kubernetes-envoy-example/util"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	basictracer "github.com/opentracing/basictracer-go"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 )
+
+func init() {
+	grpc_prometheus.EnableHandlingTimeHistogram()
+}
 
 // OptionsFunc sets options when creating a new server.
 type OptionsFunc func(*Server) error
@@ -29,11 +35,8 @@ type Server struct {
 	user     user.UserServiceClient
 	order    order.OrderServiceClient
 	item     item.ItemServiceClient
+	logger   *zap.Logger
 }
-
-type noopRecorder struct{}
-
-func (n noopRecorder) RecordSpan(basictracer.RawSpan) {}
 
 // New creates a new server
 func New(options ...OptionsFunc) (*Server, error) {
@@ -41,6 +44,13 @@ func New(options ...OptionsFunc) (*Server, error) {
 		address:  ":8080",
 		endpoint: "127.0.0.1:9090",
 	}
+
+	l, err := util.NewDefaultLogger()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create logger")
+	}
+
+	s.logger = l
 
 	for _, f := range options {
 		if err := f(s); err != nil {
@@ -93,8 +103,8 @@ func SetEndpoint(address string) OptionsFunc {
 func (s *Server) Run() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", healthz)
-	//mux.Handle("/index", nethttp.Middleware(s.tracer, http.HandlerFunc(s.index)))
-	mux.Handle("/index", util.CopyZipkinHeaders(http.HandlerFunc(s.index)))
+	mux.Handle("/metrics", promhttp.Handler())
+	mux.Handle("/index", newLogMiddleware(util.CopyZipkinHeaders(http.HandlerFunc(s.index)), s.logger))
 
 	s.server = &http.Server{
 		Addr:    s.address,
@@ -164,7 +174,6 @@ func (s *Server) index(wr http.ResponseWriter, r *http.Request) {
 				http.Error(wr, err.Error(), 500)
 				return
 			}
-			fmt.Println(details)
 			rep.Orders = append(rep.Orders, details)
 		}
 		report = append(report, rep)

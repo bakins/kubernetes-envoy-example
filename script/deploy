@@ -1,11 +1,14 @@
 #!/bin/bash
-for F in ./envoy/*.json; do
+for F in ./deploy/envoy/*.json; do
     BASE=`basename ${F}`
     kubectl create configmap --dry-run "${BASE%.*}" --from-file=envoy.json=${F} -o yaml |
         kubectl apply --namespace=default --context=minikube -f -
 done
 
-kubectl create configmap --dry-run envoy-statsd --from-file=statsd.yaml=./envoy/statsd.yaml -o yaml |
+kubectl create configmap --dry-run envoy-statsd --from-file=statsd.yaml=./deploy/statsd.yaml -o yaml |
         kubectl apply --namespace=default --context=minikube -f -
 
-kubectl apply -R -f kubernetes
+kubectl create configmap --dry-run prometheus --from-file=prometheus.yaml=./deploy/prometheus.yaml -o yaml |
+        kubectl apply --namespace=default --context=minikube -f -
+
+kubectl apply -R -f ./deploy/kubernetes

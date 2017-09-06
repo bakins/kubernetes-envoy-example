@@ -1,0 +1,78 @@
+# see https://lyft.github.io/envoy/docs/configuration/cluster_manager/cluster_stats.html#config-cluster-manager-cluster-stats
+defaults:
+  timer_type: histogram
+mappings:
+### BEGIN General
+- match: envoy.cluster.*.upstream_cx_total
+  labels:
+    name: envoy_upstream_cx_total
+    cluster: "$1"
+- match: envoy.cluster.*.upstream_cx_active
+  labels:
+    name: envoy_upstream_cx_active
+    cluster: "$1"
+- match: envoy.cluster.*.upstream_connect_fail
+  labels:
+    name: envoy_upstream_connect_fail
+    cluster: "$1"
+- match: envoy.cluster.*.membership_healthy
+  labels:
+    name: envoy_membership_healthy
+    cluster: "$1"
+- match: envoy.cluster.*.membership_change
+  labels:
+    name: envoy_membership_change
+    cluster: "$1"
+- match: envoy.cluster.*.membership_total
+  labels:
+    name: envoy_membership_total
+    cluster: "$1"
+### END General
+### BEGIN Health check statistics
+- match: envoy.cluster.*.health_check.attempt
+  labels:
+    name: envoy_health_check_attempt
+    cluster: "$1"
+- match: envoy.cluster.*.health_check.success
+  labels:
+    name: envoy_health_check_success
+    cluster: "$1"
+- match: envoy.cluster.*.health_check.failure
+  labels:
+    name: envoy_health_check_failure
+    cluster: "$1"
+- match: envoy.cluster.*.health_check.passive_failure
+  labels:
+    name: envoy_health_check_passive_failure
+    cluster: "$1"
+- match: envoy.cluster.*.health_check.network_failure
+  labels:
+    name: envoy_health_check_network_failure
+    cluster: "$1"
+- match: envoy.cluster.*.health_check.verify_cluster
+  labels:
+    name: envoy_health_check_verify_cluster
+    cluster: "$1"
+- match: envoy.cluster.*.health_check.healthy
+  labels:
+    name: envoy_health_check_healthy
+    cluster: "$1"
+### END Health check statistics
+### BEGIN Dynamic HTTP statistics
+- match: envoy.cluster.*.upstream_rq_time
+  labels:
+    name: envoy_upstream_rq_time
+    cluster: "$1"
+- match: envoy.cluster.*.canary.upstream_rq_time
+  labels:
+    name: envoy_canary_upstream_rq_time
+    cluster: "$1"
+- match: envoy.cluster.*.internal.upstream_rq_time
+  labels:
+    name: envoy_canary_internal_upstream_rq_time
+    cluster: "$1"
+- match: envoy.cluster.*.external.upstream_rq_time
+  labels:
+    name: envoy_external_upstream_rq_time
+    cluster: "$1"
+### END Dynamic HTTP statistics

@@ -1,0 +1,54 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: prometheus
+  name: prometheus
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: prometheus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - args:
+        - -config.file=/etc/prometheus/prometheus.yaml
+        - -storage.local.path=/prometheus
+        - -storage.local.retention=24h
+        - -storage.local.target-heap-size=536870912
+        command:
+        - /bin/prometheus
+        image: prom/prometheus:v1.7.1
+        imagePullPolicy: IfNotPresent
+        name: prometheus
+        ports:
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/prometheus
+          name: config-prometheus
+        - mountPath: /prometheus
+          name: data-prometheus
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - emptyDir:
+        name: data-prometheus
+      - configMap:
+          defaultMode: 420
+          name: prometheus
+        name: config-prometheus
