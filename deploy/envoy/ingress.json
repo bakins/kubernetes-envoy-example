@@ -1,6 +1,7 @@
 {
     "listeners": [
         {
+            "name": "ingress",
             "address": "tcp://0.0.0.0:8080",
             "filters": [
                 {
@@ -21,7 +22,7 @@
                             "operation_name": "egress"
                         },
                         "codec_type": "auto",
-                        "stat_prefix": "ingress_http",
+                        "stat_prefix": "ingress",
                         "route_config": {
                             "virtual_hosts": [
                                 {
@@ -80,12 +81,17 @@
                 "health_check": {
                     "type": "http",
                     "timeout_ms": 100,
-                    "interval_ms": 5000,
+                    "interval_ms": 3000,
                     "unhealthy_threshold": 3,
                     "healthy_threshold": 2,
                     "path": "/healthz",
                     "interval_jitter_ms": 250,
                     "service_name": "frontend"
+                },
+                "ssl_context": {
+                    "cert_chain_file": "/certs/cert.pem",
+                    "private_key_file": "/certs/key.pem",
+                    "ca_cert_file": "/certs/ca.pem"
                 }
             },
             {

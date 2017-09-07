@@ -19,7 +19,7 @@
                             "operation_name": "ingress"
                         },
                         "codec_type": "auto",
-                        "stat_prefix": "ingress_http",
+                        "stat_prefix": "ingress",
                         "route_config": {
                             "virtual_hosts": [
                                 {
@@ -65,7 +65,7 @@
                     "name": "http_connection_manager",
                     "config": {
                         "codec_type": "auto",
-                        "stat_prefix": "aux_http",
+                        "stat_prefix": "aux",
                         "route_config": {
                             "virtual_hosts": [
                                 {
