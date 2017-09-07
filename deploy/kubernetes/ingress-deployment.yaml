@@ -30,6 +30,8 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /etc/envoy
+            - name: certs
+              mountPath: /certs
           livenessProbe:
             httpGet:
               path: /server_info
@@ -59,3 +61,6 @@ spec:
         - name: statsd
           configMap:
             name: envoy-statsd
+        - name: certs
+          secret:
+            secretName: order

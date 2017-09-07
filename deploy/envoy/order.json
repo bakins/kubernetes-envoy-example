@@ -1,7 +1,14 @@
 {
     "listeners": [
         {
+            "name":"ingress",
             "address": "tcp://0.0.0.0:8080",
+            "ssl_context": {
+                "cert_chain_file": "/certs/cert.pem",
+                "private_key_file": "/certs/key.pem",
+                "ca_cert_file": "/certs/ca.pem",
+                "require_client_certificate": true
+            },
             "filters": [
                 {
                     "type": "read",
@@ -12,7 +19,7 @@
                             "operation_name": "ingress"
                         },
                         "codec_type": "auto",
-                        "stat_prefix": "ingress_http",
+                        "stat_prefix": "ingress",
                         "route_config": {
                             "virtual_hosts": [
                                 {
@@ -50,6 +57,7 @@
             ]
         },
         {
+            "name": "egress",
             "address": "tcp://127.0.0.1:7070",
             "filters": [
                 {
@@ -61,7 +69,7 @@
                             "operation_name": "egress"
                         },
                         "codec_type": "auto",
-                        "stat_prefix": "egress_http",
+                        "stat_prefix": "egress",
                         "route_config": {
                             "virtual_hosts": [
                                 {
@@ -79,6 +87,56 @@
                             ]
                         },
                         "filters": [
+                            {
+                                "type": "decoder",
+                                "name": "router",
+                                "config": {}
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "aux",
+            "address": "tcp://0.0.0.0:6060",
+            "filters": [
+                {
+                    "type": "read",
+                    "name": "http_connection_manager",
+                    "config": {
+                        "codec_type": "auto",
+                        "stat_prefix": "aux",
+                        "route_config": {
+                            "virtual_hosts": [
+                                {
+                                    "name": "backend",
+                                    "domains": [
+                                        "*"
+                                    ],
+                                    "routes": [
+                                        {
+                                            "prefix": "/healthz",
+                                            "cluster": "local_service"
+                                        },
+                                        {
+                                            "prefix": "/metrics",
+                                            "cluster": "local_service"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "filters": [
+                            {
+                                "type": "both",
+                                "name": "health_check",
+                                "config": {
+                                    "pass_through_mode": true,
+                                    "endpoint": "/healthz",
+                                    "cache_time_ms": 1000
+                                }
+                            },
                             {
                                 "type": "decoder",
                                 "name": "router",
@@ -129,7 +187,12 @@
                     {
                         "url": "tcp://item:8080"
                     }
-                ]
+                ],
+                "ssl_context": {
+                    "cert_chain_file": "/certs/cert.pem",
+                    "private_key_file": "/certs/key.pem",
+                    "ca_cert_file": "/certs/ca.pem"
+                }
             },
             {
                 "name": "zipkin",

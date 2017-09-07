@@ -37,15 +37,13 @@ spec:
         image: quay.io/bakins/kubernetes-envoy-example:latest
         imagePullPolicy: IfNotPresent
         command:
-        - kubernetes-grafana-updater
-        args:
+        - /usr/bin/kubernetes-grafana-updater
         - dashboards
       - name: datasource-updater
         image: quay.io/bakins/kubernetes-envoy-example:latest
         imagePullPolicy: IfNotPresent
         command:
-        - kubernetes-grafana-updater
-        args:
+        - /usr/bin/kubernetes-grafana-updater
         - datasources
-      
+
 

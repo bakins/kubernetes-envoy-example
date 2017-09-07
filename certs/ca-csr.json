@@ -1,0 +1,16 @@
+{
+  "CN": "envoy",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Atlanta",
+      "O": "envoy",
+      "OU": "CA",
+      "ST": "Georgia"
+    }
+  ]
+}

@@ -26,11 +26,15 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8080
+              port: 6060
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 8080
+              port: 6060
+          ports:
+            - containerPort: 6060
+              protocol: TCP
+              name: metrics
         - name: envoy
           image: lyft/envoy:a733fc5932b34c984712c3090ba74fe54b480324
           command: 
@@ -42,10 +46,12 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
-              name: metrics
+              name: app
           volumeMounts:
             - name: envoy
               mountPath: /etc/envoy
+            - name: certs
+              mountPath: /certs
           livenessProbe:
             httpGet:
               path: /server_info
@@ -75,3 +81,6 @@ spec:
         - name: statsd
           configMap:
             name: envoy-statsd
+        - name: certs
+          secret:
+            secretName: order
