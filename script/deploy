@@ -17,8 +17,8 @@ kubectl create configmap --dry-run prometheus --from-file=prometheus.yaml=./depl
 
 #for F in ./deploy/dashboards/*.json; do
 #    BASE=`basename ${F}`
-#    kubectl create configmap --dry-run "${BASE%.*}" --from-file=${BASE}=${F} -o json |
-#        jq '. * {"labels": {"type": "grafana-dashboard"}}' |
+#    kubectl create configmap --dry-run dashboard-"${BASE%.*}" --from-file=${BASE}=${F} -o json |
+#        jq '. * {"metadata":{ "labels": {"type": "grafana-dashboard"}}}' |
 #        kubectl apply --namespace=default --context=minikube -f -
 #done
 
