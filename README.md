@@ -105,6 +105,16 @@ run adhoc [queries](https://prometheus.io/docs/querying/basics/) for metrics.
 
 TODO: grafana dashboards
 
+## Prometheus Queries
+
+`histogram_quantile(0.95, sum(rate(envoy_upstream_rq_time_bucket{cluster!="local_service"}[5m])) by (le,app, cluster))`
+
+`sum(rate(envoy_upstream_rq_time_count{cluster!="local_service"}[5m])) by (app, cluster)`
+
+`sum(envoy_health_check_healthy) by (app,cluster)`
+
+`sum(envoy_upstream_cx_total) by (app,cluster)`
+
 ## LICENSE
 
 See [LICENSE](./LICENSE)

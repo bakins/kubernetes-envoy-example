@@ -22,7 +22,7 @@ EOF
         -ca=ca.pem \
         -ca-key=ca-key.pem \
         -config=ca-config.json \
-        -hostname=${APP},${APP}.default,${APP}.svc.cluster.local \
+        -hostname=${APP},${APP}.default,${APP}.default.svc.cluster.local \
         -profile=kubernetes \
         ${APP}-csr.json | cfssljson -bare ${APP}
 done

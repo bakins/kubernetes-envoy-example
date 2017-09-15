@@ -7,7 +7,10 @@
                 "cert_chain_file": "/certs/cert.pem",
                 "private_key_file": "/certs/key.pem",
                 "ca_cert_file": "/certs/ca.pem",
-                "require_client_certificate": true
+                "require_client_certificate": true,
+                "verify_subject_alt_name": [
+                    "order"
+                ]
             },
             "filters": [
                 {

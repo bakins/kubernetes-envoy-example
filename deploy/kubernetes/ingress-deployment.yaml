@@ -63,4 +63,4 @@ spec:
             name: envoy-statsd
         - name: certs
           secret:
-            secretName: order
+            secretName: ingress

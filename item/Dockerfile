@@ -7,7 +7,7 @@ RUN pecl install protobuf
 RUN echo "extension=grpc.so" > /etc/php7/conf.d/01_grpc.ini
 RUN echo "extension=protobuf.so" > /etc/php7/conf.d/02_protobuf.ini
 RUN cd /tmp && \
-    curl --fail -L -O https://github.com/bakins/grpc-fastcgi-proxy/releases/download/v0.1.1/grpc-fastcgi-proxy.linux.amd64 && \
+    curl --fail -L -O https://github.com/bakins/grpc-fastcgi-proxy/releases/download/v0.2.0/grpc-fastcgi-proxy.linux.amd64 && \
     chmod +x grpc-fastcgi-proxy.linux.amd64 && \
     mv grpc-fastcgi-proxy.linux.amd64  /usr/bin/grpc-fastcgi-proxy
 COPY . /app/
