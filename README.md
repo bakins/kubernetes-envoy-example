@@ -62,10 +62,10 @@ The other services - user and order - are simple gRPC services written in Go.
 
 ## Tracing
 
-[Zipkin](http://zipkin.io/) is used for tracing. Envoy is [configured](https://lyft.github.io/envoy/docs/intro/arch_overview/tracing.html)
-to send tracing information to Zipkin.
+[Jaeger](https://github.com/uber/jaeger) is used for tracing. Envoy is [configured](https://lyft.github.io/envoy/docs/intro/arch_overview/tracing.html)
+to send tracing information to the [Zipkin compatible endpoint](http://jaeger.readthedocs.io/en/latest/getting_started/#migrating-from-zipkin) of Jaeger.
 
-The applications do not send any data to Zipkin. They only ensure the tracing headers
+The applications do not send any data to Jaeger. They only ensure the tracing headers
 are [propogated](https://lyft.github.io/envoy/docs/install/sandboxes/zipkin_tracing.html).
 
 ## Service Discovery
@@ -97,8 +97,8 @@ the minikube Dcoker environment.
 After a few seconds, you should be able to access the applciation by running
 `minikube service ingress` - you should see a simple json body.
 
-To access ZipKin, run `minikube service zipkin`. Refresh the ingress application a few times
-and then click "Find Traces" in ZipKin and you should see traces.
+To access jaeger, run `minikube service jaeger-query`. You may need to reload in the
+browser a few times.
 
 Prometheus is available via `minikube service prometheus`.  You should be able to
 run adhoc [queries](https://prometheus.io/docs/querying/basics/) for metrics.
