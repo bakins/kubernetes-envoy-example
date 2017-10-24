@@ -22,8 +22,16 @@ spec:
           command: 
             - /usr/bin/grpc-fastcgi-proxy
             - "--address=127.0.0.1:9090"
-            - "--fastcgi=127.0.0.1:9000"
+            - "--fastcgi=tcp://127.0.0.1:9000"
+            - "--aux-address=127.0.0.1:5050"
+            - "--aux-path=/healthz.php=/app/healthz.php"
+            - "--aux-path=/status"
+            - "--aux-path=/ping"
             - "/app/index.php"
+          livenessProbe:
+            httpGet:
+              path: /healthz.php
+              port: 6060
         - name: php
           image: quay.io/bakins/kubernetes-envoy-example-php:latest
           imagePullPolicy: IfNotPresent
@@ -39,6 +47,25 @@ spec:
             - containerPort: 6060
               protocol: TCP
               name: metrics
+          livenessProbe:
+            httpGet:
+              path: /healthz.php
+              port: 6060
+        - name: exporter
+          image: quay.io/bakins/kubernetes-envoy-example-php:latest
+          imagePullPolicy: IfNotPresent
+          command: 
+            - /usr/bin/php-fpm-exporter
+            - "--addr=:8888"
+            - "--endpoint=http://127.0.0.1:5050/status"
+          ports:
+            - containerPort: 8888
+              protocol: TCP
+              name: metrics
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8888
         - name: envoy
           image: lyft/envoy:a733fc5932b34c984712c3090ba74fe54b480324
           command: 
@@ -69,7 +96,6 @@ spec:
           command: 
             - "/bin/statsd_exporter"
           args:
-            - "-statsd.add-suffix=false"
             - "-statsd.mapping-config=/etc/statsd/statsd.yaml"
           ports:
             - containerPort: 9102
