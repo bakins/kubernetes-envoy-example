@@ -191,6 +191,16 @@
                         "url": "tcp://item:8080"
                     }
                 ],
+                "health_check": {
+                    "type": "http",
+                    "timeout_ms": 100,
+                    "interval_ms": 3000,
+                    "unhealthy_threshold": 3,
+                    "healthy_threshold": 2,
+                    "path": "/healthz.php",
+                    "interval_jitter_ms": 250,
+                    "service_name": "item"
+                },
                 "ssl_context": {
                     "cert_chain_file": "/certs/cert.pem",
                     "private_key_file": "/certs/key.pem",

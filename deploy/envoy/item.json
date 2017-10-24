@@ -31,6 +31,11 @@
                                         "*"
                                     ],
                                     "routes": [
+                                        "routes": [
+                                        {
+                                            "prefix": "/healthz.php",
+                                            "cluster": "local_aux_service"
+                                        },
                                         {
                                             "prefix": "/",
                                             "cluster": "local_service"
@@ -45,7 +50,7 @@
                                 "name": "health_check",
                                 "config": {
                                     "pass_through_mode": true,
-                                    "endpoint": "/healthz",
+                                    "endpoint": "/healthz.php",
                                     "cache_time_ms": 1000
                                 }
                             },
@@ -78,12 +83,12 @@
                                     ],
                                     "routes": [
                                         {
-                                            "prefix": "/healthz",
-                                            "cluster": "local_service"
+                                            "prefix": "/healthz.php",
+                                            "cluster": "local_aux_service"
                                         },
                                         {
                                             "prefix": "/metrics",
-                                            "cluster": "local_service"
+                                            "cluster": "local_aux_service"
                                         }
                                     ]
                                 }
@@ -95,7 +100,7 @@
                                 "name": "health_check",
                                 "config": {
                                     "pass_through_mode": true,
-                                    "endpoint": "/healthz",
+                                    "endpoint": "/healthz.php",
                                     "cache_time_ms": 1000
                                 }
                             },
@@ -136,6 +141,17 @@
                 "hosts": [
                     {
                         "url": "tcp://127.0.0.1:9090"
+                    }
+                ]
+            },
+            {
+                "name": "local_aux_service",
+                "connect_timeout_ms": 250,
+                "type": "static",
+                "lb_type": "round_robin",
+                "hosts": [
+                    {
+                        "url": "tcp://127.0.0.1:5050"
                     }
                 ]
             },

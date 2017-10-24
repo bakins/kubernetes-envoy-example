@@ -65,7 +65,6 @@ spec:
           command: 
             - "/bin/statsd_exporter"
           args:
-            - "-statsd.add-suffix=false"
             - "-statsd.mapping-config=/etc/statsd/statsd.yaml"
           ports:
             - containerPort: 9102
