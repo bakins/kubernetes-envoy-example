@@ -31,6 +31,11 @@
                                         "*"
                                     ],
                                     "routes": [
+                                        "routes": [
+                                        {
+                                            "prefix": "/healthz.php",
+                                            "cluster": "local_aux_service"
+                                        },
                                         {
                                             "prefix": "/",
                                             "cluster": "local_service"
@@ -78,7 +83,7 @@
                                     ],
                                     "routes": [
                                         {
-                                            "prefix": "/healthz",
+                                            "prefix": "/healthz.php",
                                             "cluster": "local_aux_service"
                                         },
                                         {
@@ -95,7 +100,7 @@
                                 "name": "health_check",
                                 "config": {
                                     "pass_through_mode": true,
-                                    "endpoint": "/healthz",
+                                    "endpoint": "/healthz.php",
                                     "cache_time_ms": 1000
                                 }
                             },
