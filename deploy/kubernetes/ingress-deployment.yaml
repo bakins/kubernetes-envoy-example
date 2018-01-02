@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: envoy
-          image: lyft/envoy:a733fc5932b34c984712c3090ba74fe54b480324
+          image: envoyproxy/envoy-alpine:v1.5.0
           command: 
             - "/usr/local/bin/envoy"
           args:
