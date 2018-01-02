@@ -31,7 +31,6 @@
                                         "*"
                                     ],
                                     "routes": [
-                                        "routes": [
                                         {
                                             "prefix": "/healthz.php",
                                             "cluster": "local_aux_service"
