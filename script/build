@@ -1,18 +1,22 @@
 #!/bin/bash
 set -ex
 
+for CMD in frontend user order; do
+    docker run --rm -t \
+        -v `pwd`:/go/src/github.com/bakins/kubernetes-envoy-example \
+        -w /go/src/github.com/bakins/kubernetes-envoy-example \
+        -e GOOS=linux \
+        -e GOARCH=amd64 \
+        -e CGO_ENABLED=0 \
+        -e GOPATH=/go \
+        golang:1.9-alpine \
+        go build -o bin/$CMD ./cmd/$CMD/
+done
+
 eval $(minikube docker-env --shell bash)
+
+docker build -t quay.io/bakins/kubernetes-envoy-example:latest .
 
 pushd ./item
 docker build -t quay.io/bakins/kubernetes-envoy-example-php:latest .
 popd
-
-for CMD in frontend user order; do
-    docker run -t \
-        -v `pwd`:/go/src/github.com/bakins/kubernetes-envoy-example \
-        -w /go/src/github.com/bakins/kubernetes-envoy-example\
-        golang:1.9-alpine \
-        sh -c "go build -o bin/$CMD ./cmd/$CMD"
-done
-
-docker build -t quay.io/bakins/kubernetes-envoy-example:latest .

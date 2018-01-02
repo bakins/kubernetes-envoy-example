@@ -91,7 +91,7 @@ cd kubernetes-envoy-example
 Now to build and deploy the example applications:
 
 * `./script/build` will build the applications and push Docker images into
-the minikube Dcoker environment.
+the minikube Docker environment.
 * `./script/deploy` will deploy the Kubernetes manifests.
 
 After a few seconds, you should be able to access the applciation by running
