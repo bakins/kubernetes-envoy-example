@@ -171,6 +171,63 @@
                     }
                 ],
                 "http_protocol_options": {}
+            },
+            {
+                "name": "order",
+                "type": "STRICT_DNS",
+                "connect_timeout": {
+                    "nanos": 250000000
+                },
+                "lb_policy": "ROUND_ROBIN",
+                "hosts": [
+                    {
+                        "socket_address": {
+                            "address": "order",
+                            "port_value": 8080,
+                            "protocol": "TCP"
+                        }
+                    }
+                ],
+                "health_checks": [
+                    {
+                        "timeout": {
+                            "nanos": 100000000
+                        },
+                        "interval": {
+                            "seconds": 3
+                        },
+                        "interval_jitter": {
+                            "nanos": 500000000
+                        },
+                        "unhealthy_threshold": 3,
+                        "healthy_threshold": 2,
+                        "http_health_check": {
+                            "path": "/healthz",
+                            "service_name": "order"
+                        }
+                    }
+                ],
+                "tls_context": {
+                    "common_tls_context": {
+                        "tls_certificates": [
+                            {
+                                "certificate_chain": {
+                                    "filename": "/certs/frontend.pem"
+                                },
+                                "private_key": {
+                                    "filename": "/certs/frontend-key.pem"
+                                }
+                            }
+                        ],
+                        "validation_context": {
+                            "trusted_ca": {
+                                "filename": "/certs/ca.pem"
+                            }
+                        }
+                    },
+                    "sni": "order"
+                },
+                "http2_protocol_options": {}
             }
         ]
     }
