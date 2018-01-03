@@ -33,7 +33,10 @@
                                     "routes": [
                                         {
                                             "prefix": "/",
-                                            "cluster": "local_service"
+                                            "cluster": "local_service",
+                                            "decorator": {
+                                                "operation": "frontend"
+                                            }
                                         }
                                     ]
                                 }

@@ -48,6 +48,32 @@
                 },
                 "filter_chains": [
                     {
+                        "filter_chain_match": {
+                            "sni_domains": [
+                                "*"
+                            ]
+                        },
+                        "tls_context": {
+                            "common_tls_context": {
+                                "tls_certificates": [
+                                    {
+                                        "certificate_chain": {
+                                            "filename": "/certs/cert.pem"
+                                        },
+                                        "private_key": {
+                                            "filename": "/certs/key.pem"
+                                        }
+                                    }
+                                ],
+                                "validation_context": {
+                                    "trusted_ca": {
+                                        "filename": "/certs/ca.pem"
+                                    }
+                                },
+                                "alpn_protocols": "h2,http/1.1"
+                            },
+                            "require_client_certificate": true
+                        },
                         "filters": [
                             {
                                 "name": "envoy.http_connection_manager",
@@ -62,18 +88,7 @@
                                                 "domains": [
                                                     "*"
                                                 ],
-                                                "routes": {
-                                                    "match": {
-                                                        "prefix": "/index"
-                                                    },
-                                                    "route": {
-                                                        "cluster": "frontend"
-                                                    },
-                                                    "decorator": {
-                                                        "operation": "ingress"
-                                                    }
-                                                },
-                                                "require_tls": "NONE"
+                                                "require_tls": "ALL"
                                             }
                                         ]
                                     },

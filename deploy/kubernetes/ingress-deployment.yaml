@@ -23,6 +23,7 @@ spec:
           args:
             - "--config-path /etc/envoy/envoy.json"
             - "--mode serve"
+            - "--v2-config-only"
             - "--service-cluster ingress"
           ports:
             - containerPort: 8080
