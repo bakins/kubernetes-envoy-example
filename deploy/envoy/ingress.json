@@ -62,17 +62,19 @@
                                                 "domains": [
                                                     "*"
                                                 ],
-                                                "routes": {
-                                                    "match": {
-                                                        "prefix": "/index"
-                                                    },
-                                                    "route": {
-                                                        "cluster": "frontend"
-                                                    },
-                                                    "decorator": {
-                                                        "operation": "ingress"
+                                                "routes": [
+                                                    {
+                                                        "match": {
+                                                            "prefix": "/index"
+                                                        },
+                                                        "route": {
+                                                            "cluster": "frontend"
+                                                        },
+                                                        "decorator": {
+                                                            "operation": "ingress"
+                                                        }
                                                     }
-                                                },
+                                                ],
                                                 "require_tls": "NONE"
                                             }
                                         ]

@@ -94,7 +94,7 @@ Now to build and deploy the example applications:
 the minikube Docker environment.
 * `./script/deploy` will deploy the Kubernetes manifests.
 
-After a few seconds, you should be able to access the applciation by running
+After a few seconds, you should be able to access the application by running
 `minikube service ingress` - you should see a simple json body.
 
 To access jaeger, run `minikube service jaeger-query`. You may need to reload in the
