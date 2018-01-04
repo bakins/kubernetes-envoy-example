@@ -23,13 +23,12 @@ spec:
     spec:
       containers:
       - args:
-        - -config.file=/etc/prometheus/prometheus.yaml
-        - -storage.local.path=/prometheus
-        - -storage.local.retention=24h
-        - -storage.local.target-heap-size=536870912
+        - --config.file=/etc/prometheus/prometheus.yaml
+        - --storage.tsdb.path=/prometheus
+        - --storage.tsdb.retention=24h
         command:
         - /bin/prometheus
-        image: prom/prometheus:v1.7.1
+        image: prom/prometheus:v2.0.0
         imagePullPolicy: IfNotPresent
         name: prometheus
         ports:

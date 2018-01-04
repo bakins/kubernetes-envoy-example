@@ -1,157 +1,268 @@
 {
-    "listeners": [
+    "admin": {
+        "access_log_path": "/dev/null",
+        "address": {
+            "socket_address": {
+                "address": "0.0.0.0",
+                "port_value": 8001,
+                "protocol": "TCP"
+            }
+        }
+    },
+    "stats_flush_interval": {
+        "seconds": 5
+    },
+    "stats_sinks": [
         {
-            "name": "ingress",
-            "address": "tcp://0.0.0.0:8080",
-            "ssl_context": {
-                "cert_chain_file": "/certs/cert.pem",
-                "private_key_file": "/certs/key.pem",
-                "ca_cert_file": "/certs/ca.pem",
-                "require_client_certificate": true,
-                "verify_subject_alt_name": [
-                    "frontend"
-                ]
-            },
-            "filters": [
-                {
-                    "type": "read",
-                    "name": "http_connection_manager",
-                    "config": {
-                        "server_name": "envoy-user",
-                        "tracing": {
-                            "operation_name": "ingress"
-                        },
-                        "codec_type": "auto",
-                        "stat_prefix": "ingress",
-                        "route_config": {
-                            "virtual_hosts": [
-                                {
-                                    "name": "user",
-                                    "domains": [
-                                        "*"
-                                    ],
-                                    "routes": [
-                                        {
-                                            "prefix": "/",
-                                            "cluster": "local_service"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        "filters": [
-                            {
-                                "type": "both",
-                                "name": "health_check",
-                                "config": {
-                                    "pass_through_mode": true,
-                                    "endpoint": "/healthz",
-                                    "cache_time_ms": 1000
-                                }
-                            },
-                            {
-                                "type": "decoder",
-                                "name": "router",
-                                "config": {}
-                            }
-                        ]
+            "name": "envoy.statsd",
+            "config": {
+                "address": {
+                    "socket_address": {
+                        "address": "127.0.0.1",
+                        "port_value": 9125,
+                        "protocol": "UDP"
                     }
                 }
-            ]
-        },
-        {
-            "name": "aux",
-            "address": "tcp://0.0.0.0:6060",
-            "filters": [
-                {
-                    "type": "read",
-                    "name": "http_connection_manager",
-                    "config": {
-                        "codec_type": "auto",
-                        "stat_prefix": "aux",
-                        "route_config": {
-                            "virtual_hosts": [
-                                {
-                                    "name": "backend",
-                                    "domains": [
-                                        "*"
-                                    ],
-                                    "routes": [
-                                        {
-                                            "prefix": "/healthz",
-                                            "cluster": "local_service"
-                                        },
-                                        {
-                                            "prefix": "/metrics",
-                                            "cluster": "local_service"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        "filters": [
-                            {
-                                "type": "both",
-                                "name": "health_check",
-                                "config": {
-                                    "pass_through_mode": true,
-                                    "endpoint": "/healthz",
-                                    "cache_time_ms": 1000
-                                }
-                            },
-                            {
-                                "type": "decoder",
-                                "name": "router",
-                                "config": {}
-                            }
-                        ]
-                    }
-                }
-            ]
+            }
         }
     ],
     "tracing": {
         "http": {
-            "driver": {
-                "type": "zipkin",
-                "config": {
-                    "collector_cluster": "zipkin",
-                    "collector_endpoint": "/api/v1/spans"
-                }
+            "name": "envoy.zipkin",
+            "config": {
+                "collector_cluster": "zipkin",
+                "collector_endpoint": "/api/v1/spans"
             }
         }
     },
-    "admin": {
-        "access_log_path": "/dev/null",
-        "address": "tcp://0.0.0.0:8001"
-    },
-    "cluster_manager": {
-        "clusters": [
+    "static_resources": {
+        "listeners": [
             {
-                "name": "local_service",
-                "connect_timeout_ms": 250,
-                "type": "static",
-                "lb_type": "round_robin",
-                "features": "http2",
-                "hosts": [
+                "name": "app",
+                "address": {
+                    "socket_address": {
+                        "address": "0.0.0.0",
+                        "port_value": 8080,
+                        "protocol": "TCP"
+                    }
+                },
+                "filter_chains": [
                     {
-                        "url": "tcp://127.0.0.1:9090"
+                        "tls_context": {
+                            "common_tls_context": {
+                                "tls_certificates": [
+                                    {
+                                        "certificate_chain": {
+                                            "filename": "/certs/cert.pem"
+                                        },
+                                        "private_key": {
+                                            "filename": "/certs/key.pem"
+                                        }
+                                    }
+                                ],
+                                "validation_context": {
+                                    "trusted_ca": {
+                                        "filename": "/certs/ca.pem"
+                                    }
+                                },
+                                "alpn_protocols": "h2,http/1.1"
+                            },
+                            "require_client_certificate": true
+                        },
+                        "filters": [
+                            {
+                                "name": "envoy.http_connection_manager",
+                                "config": {
+                                    "codec_type": "HTTP2",
+                                    "stat_prefix": "app",
+                                    "route_config": {
+                                        "name": "app",
+                                        "virtual_hosts": [
+                                            {
+                                                "name": "app",
+                                                "domains": [
+                                                    "*"
+                                                ],
+                                                "routes": [
+                                                    {
+                                                        "match": {
+                                                            "prefix": "/"
+                                                        },
+                                                        "route": {
+                                                            "cluster": "local"
+                                                        },
+                                                        "decorator": {
+                                                            "operation": "app"
+                                                        }
+                                                    }
+                                                ],
+                                                "require_tls": "NONE"
+                                            }
+                                        ]
+                                    },
+                                    "http_filters": [
+                                        {
+                                            "name": "envoy.health_check",
+                                            "config": {
+                                                "endpoint": "/healthz",
+                                                "pass_through_mode": true,
+                                                "cache_time": {
+                                                    "seconds": 1
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "name": "envoy.router",
+                                            "config": {}
+                                        }
+                                    ],
+                                    "tracing": {
+                                        "operation_name": "INGRESS"
+                                    },
+                                    "server_name": "envoy-user-app",
+                                    "idle_timeout": {
+                                        "seconds": 10
+                                    },
+                                    "drain_timeout": {
+                                        "seconds": 10
+                                    },
+                                    "access_log": {
+                                        "name": "envoy.file_access_log",
+                                        "config": {
+                                            "path": "/dev/stdout"
+                                        }
+                                    },
+                                    "generate_request_id": false
+                                }
+                            }
+                        ]
                     }
                 ]
             },
             {
-                "name": "zipkin",
-                "connect_timeout_ms": 250,
-                "type": "strict_dns",
-                "lb_type": "round_robin",
-                "hosts": [
+                "name": "aux",
+                "address": {
+                    "socket_address": {
+                        "address": "0.0.0.0",
+                        "port_value": 6060,
+                        "protocol": "TCP"
+                    }
+                },
+                "filter_chains": [
                     {
-                        "url": "tcp://zipkin:9411"
+                        "filters": [
+                            {
+                                "name": "envoy.http_connection_manager",
+                                "config": {
+                                    "codec_type": "HTTP1",
+                                    "stat_prefix": "aux",
+                                    "route_config": {
+                                        "name": "aux",
+                                        "virtual_hosts": [
+                                            {
+                                                "name": "aux",
+                                                "domains": [
+                                                    "*"
+                                                ],
+                                                "routes": [
+                                                    {
+                                                        "match": {
+                                                            "prefix": "/metrics"
+                                                        },
+                                                        "route": {
+                                                            "cluster": "local"
+                                                        },
+                                                        "decorator": {
+                                                            "operation": "metrics"
+                                                        }
+                                                    },
+                                                    {
+                                                        "match": {
+                                                            "prefix": "/healthz"
+                                                        },
+                                                        "route": {
+                                                            "cluster": "local"
+                                                        },
+                                                        "decorator": {
+                                                            "operation": "healthz"
+                                                        }
+                                                    }
+                                                ],
+                                                "require_tls": "NONE"
+                                            }
+                                        ]
+                                    },
+                                    "http_filters": [
+                                        {
+                                            "name": "envoy.health_check",
+                                            "config": {
+                                                "endpoint": "/healthz",
+                                                "pass_through_mode": true,
+                                                "cache_time": {
+                                                    "seconds": 1
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "name": "envoy.router",
+                                            "config": {}
+                                        }
+                                    ],
+                                    "tracing": {
+                                        "operation_name": "EGRESS"
+                                    },
+                                    "server_name": "envoy-user-aux",
+                                    "idle_timeout": {
+                                        "seconds": 10
+                                    },
+                                    "drain_timeout": {
+                                        "seconds": 10
+                                    },
+                                    "generate_request_id": false
+                                }
+                            }
+                        ]
                     }
                 ]
             }
+        ],
+        "clusters": [
+            {
+                "name": "local",
+                "type": "STATIC",
+                "connect_timeout": {
+                    "seconds": 10
+                },
+                "lb_policy": "ROUND_ROBIN",
+                "hosts": [
+                    {
+                        "socket_address": {
+                            "address": "127.0.0.1",
+                            "port_value": 9090,
+                            "protocol": "TCP"
+                        }
+                    }
+                ],
+                "http2_protocol_options": {}
+            },
+            {
+                "name": "zipkin",
+                "type": "STRICT_DNS",
+                "connect_timeout": {
+                    "nanos": 250000000
+                },
+                "lb_policy": "ROUND_ROBIN",
+                "hosts": [
+                    {
+                        "socket_address": {
+                            "address": "zipkin",
+                            "port_value": 9411,
+                            "protocol": "TCP"
+                        }
+                    }
+                ],
+                "http_protocol_options": {}
+            }
         ]
-    },
-    "statsd_udp_ip_address": "127.0.0.1:9125",
-    "stats_flush_interval_ms": 1000
+    }
 }

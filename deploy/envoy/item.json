@@ -3,15 +3,6 @@
         {
             "name": "ingress",
             "address": "tcp://0.0.0.0:8080",
-            "ssl_context": {
-                "cert_chain_file": "/certs/cert.pem",
-                "private_key_file": "/certs/key.pem",
-                "ca_cert_file": "/certs/ca.pem",
-                "require_client_certificate": true,
-                "verify_subject_alt_name": [
-                    "order"
-                ]
-            },
             "filters": [
                 {
                     "type": "read",

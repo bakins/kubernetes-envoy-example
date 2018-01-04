@@ -13,6 +13,7 @@ spec:
         app: frontend
       annotations:
         prometheus.io/scrape: "true"
+        prometheus.io/envoy: "8001"
       name: frontend
     spec:
       containers:
@@ -23,18 +24,18 @@ spec:
             - "/usr/bin/frontend"
             - "--address=127.0.0.1:9090"
             - "--endpoint=127.0.0.1:7070"
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 6060
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 6060
-          ports:
-            - containerPort: 6060
-              protocol: TCP
-              name: app
+#          livenessProbe:
+#            httpGet:
+#              path: /healthz
+#              port: 6060
+#          readinessProbe:
+#            httpGet:
+#              path: /healthz
+#              port: 6060
+#          ports:
+#            - containerPort: 6060
+#              protocol: TCP
+#              name: app
         - name: envoy
           image: envoyproxy/envoy-alpine:v1.5.0
           command: 
@@ -43,6 +44,7 @@ spec:
             - "--config-path /etc/envoy/envoy.json"
             - "--mode serve"
             - "--service-cluster frontend"
+            - --v2-config-only
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -52,14 +54,14 @@ spec:
               mountPath: /etc/envoy
             - name: certs
               mountPath: /certs
-          livenessProbe:
-            httpGet:
-              path: /server_info
-              port: 8001
-          readinessProbe:
-            httpGet:
-              path: /server_info
-              port: 8001
+#          livenessProbe:
+#            httpGet:
+#              path: /server_info
+#              port: 8001
+#          readinessProbe:
+#            httpGet:
+#              path: /server_info
+#              port: 8001
         - name: statsd
           image: prom/statsd-exporter:master
           command: 
