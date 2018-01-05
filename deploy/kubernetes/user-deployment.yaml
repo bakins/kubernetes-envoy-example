@@ -42,6 +42,7 @@ spec:
             - "--config-path /etc/envoy/envoy.json"
             - "--mode serve"
             - "--service-cluster user"
+            - --v2-config-only
           ports:
             - containerPort: 8080
               protocol: TCP

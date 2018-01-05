@@ -21,6 +21,7 @@ spec:
       labels:
         app: prometheus
     spec:
+      serviceAccountName: prometheus
       containers:
       - args:
         - --config.file=/etc/prometheus/prometheus.yaml

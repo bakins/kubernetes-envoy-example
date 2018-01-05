@@ -13,7 +13,6 @@ spec:
         app: frontend
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/envoy: "8001"
       name: frontend
     spec:
       containers:
@@ -24,20 +23,20 @@ spec:
             - "/usr/bin/frontend"
             - "--address=127.0.0.1:9090"
             - "--endpoint=127.0.0.1:7070"
-#          livenessProbe:
-#            httpGet:
-#              path: /healthz
-#              port: 6060
-#          readinessProbe:
-#            httpGet:
-#              path: /healthz
-#              port: 6060
-#          ports:
-#            - containerPort: 6060
-#              protocol: TCP
-#              name: app
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 6060
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 6060
+          ports:
+            - containerPort: 6060
+              protocol: TCP
+              name: app
         - name: envoy
-          image: envoyproxy/envoy-alpine:v1.5.0
+          image: envoyproxy/envoy-alpine:16704850cd85e4c36587a50cf9eaa4a405782ecd
           command: 
             - "/usr/local/bin/envoy"
           args:
@@ -49,19 +48,22 @@ spec:
             - containerPort: 8080
               protocol: TCP
               name: app
+            - containerPort: 8001
+              protocol: TCP
+              name: envoy-admin
           volumeMounts:
             - name: envoy
               mountPath: /etc/envoy
             - name: certs
               mountPath: /certs
-#          livenessProbe:
-#            httpGet:
-#              path: /server_info
-#              port: 8001
-#          readinessProbe:
-#            httpGet:
-#              path: /server_info
-#              port: 8001
+          livenessProbe:
+            httpGet:
+              path: /server_info
+              port: 8001
+          readinessProbe:
+            httpGet:
+              path: /server_info
+              port: 8001
         - name: statsd
           image: prom/statsd-exporter:master
           command: 
